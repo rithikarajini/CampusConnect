@@ -1,0 +1,78 @@
+@charset "UTF-8";
+body {
+  padding-top: 130px;
+  margin: 10px;
+  font-family: 'Satoshi', 'DM Serif Display';
+  background:  #ccd6b4;
+  min-height: 100vh;
+  color: #000;
+  overflow-x: hidden;
+}
+
+#title {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  height: 80px;
+  align-items: center;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  margin: 0;
+  position: fixed;
+  font-size: 60px;
+  color: #fff;
+  font-family: 'DM Serif Display', serif;
+  z-index: 1000;
+}
+
+#title .dark-green {
+  color: #006a6a;
+}
+
+#title .light-green {
+  color: #3db846;
+}
+
+#menu {
+  display: flex;
+  justify-content: space-between;
+  width: 100vw;  
+  background-color:#fff;
+   top: 120px;
+  left: 0;
+  position:fixed;
+  margin: 0;
+  font-size:25px;
+  z-index: 100;
+}
+
+#menu > * {
+  flex-grow: 1;
+  flex-shrink: 0;
+  flex-basis: 0;
+  text-align: center;
+  box-sizing: border-box;
+  border-left: 1px solid #808080;
+}
+
+#menu div a{
+	color : #000;
+	text-decoration: none;
+	display: block;
+	width: 100%; 
+	 padding: 10px;
+  box-sizing: border-box
+}
+#menu div a:hover{
+	  transition: background-color 0.15s ease, color 0.10s ease, font-size 0.10s ease;
+	    background-color: #006a6a !important;
+  font-size:29px;
+  color: white !important;
+}
+#menu > div > a.active {
+  background-color: #3db846 !important;
+  font-size:29px;
+  color: white !important;
+ 
+}

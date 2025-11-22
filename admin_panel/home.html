@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="header.css"><link rel="stylesheet" href="hbody.css">
+<meta charset="UTF-8">
+<title>CampusConnect</title>
+</head>
+<body>
+	<div id="logo-container" >
+	  <img src="clogo.png" id="logo" >
+	</div>
+	<div id="main-content" style="display:none;">
+		<div style="position: fixed; width: 500px; height: 400px;">
+		  	<img src="clogo.png"style="width: 130px; height: auto; position: fixed; top: 10px; left: 0;" >
+		 </div>
+		<h2 id="title">
+			  <span class="dark-green">Campus</span> 
+			  <span class="light-green">Connect</span>
+		</h2>
+		<div id="menu">
+			<div  id="evnt">
+				<a href="home.html?menu=Event">Event</a>
+			</div>
+			<div id="exm">
+				<a href="home.html?menu=Exam">Exam</a>
+			</div>
+			<div id="dept">
+				<a href="home.html?menu=Department">Department</a>
+			</div>
+			<div id="fee">
+				<a href="home.html?menu=Fees">Fees</a>
+			</div>
+		</div>
+		<div id="details">
+			<div id="name"></div>
+			<div id="table">
+				<table id="tbl"></table>
+			</div>
+			<div id="btn">
+				<a href=""><input type="button" value="ADD"></a>
+			</div>
+		</div>
+	</div>
+	<script>
+	window.onload = function() {
+		  const logoContainer = document.getElementById('logo-container');
+		  const mainContent = document.getElementById('main-content');
+		  
+		  if (!localStorage.getItem('logoShown')) {
+		  setTimeout(() => {
+		    logoContainer.classList.add('shrink');
+		  }, 200);
+		  
+		  setTimeout(() => {
+		    logoContainer.style.display = 'none';
+		    mainContent.style.display = 'block';
+		    void mainContent.offsetWidth;
+	
+		    mainContent.classList.add('visible');
+		    
+		    localStorage.setItem('logoShown', 'true');
+		    initPageContent();
+		  }, 1300);
+		}else {
+			 logoContainer.style.display = 'none';
+			    mainContent.style.display = 'block';
+			    mainContent.classList.add('visible');
+			    initPageContent();
+		}
+		  
+		};
+	
+	 function initPageContent() {
+		  const param = new URLSearchParams(window.location.search);
+		  const selectedmenu = param.get("menu") || "Event"; // default
+		  
+		  const menuLinks = document.querySelectorAll('#menu div a');
+	
+		  menuLinks.forEach(link => {
+		    if(link.href.includes(selectedmenu)){
+		      link.classList.add('active');
+		    } else {
+		      link.classList.remove('active');
+		    }
+		  });
+		
+		const heading = {
+				Event: ["Event ID", "Event Name", "Event Date", "Department ID", "Actions"],
+				Exam: ["Course Code", "Course Name", "Date","class","Dept Name", "Actions"],
+				Department:["Dept ID", "Dept Name","HOD","Asst. Prof","Asst. Prof","Asst. Prof","Asst. Prof", "Actions"],
+				Fees:["Fee ID", "Amount", "Last Date", "Semester", "Actions"]
+		};
+		
+		const KeyByMenu = {
+				Event: ["event_id", "event_name", "event_date", "dept_id"],
+				Exam: ["course_code", "course_name", "exam_date","class","dept_id"],
+				Department:["dept_id", "dept_ame","hod","asst_prof1","asst_prof2","asst_prof3","asst_prof4"],
+				Fees:["fee_id", "amount", "Last_date", "semester"]
+		};
+		
+		const nameDiv = document.getElementById("name");
+		const table = document.getElementById("tbl");
+		const btn = document.querySelector("#btn a");
+		
+		
+		if(selectedmenu && heading[selectedmenu]){
+			
+			nameDiv.innerHTML = `<h2>${selectedmenu.toUpperCase()}</h2>` ;
+			btn.href = `${selectedmenu}.html` ;
+			
+			table.innerHTML="";
+			
+			const trhead = document.createElement("tr");
+			heading[selectedmenu].forEach(h =>{
+				const th = document.createElement("th");
+				th.textContent = h ;
+				trhead.appendChild(th);
+			});
+			table.appendChild(trhead);
+			
+			fetch(`${selectedmenu}ListServlet`)
+				.then(response => response.json())
+				.then(data =>{
+					data.forEach(row => {
+						const tr = document.createElement("tr");
+						
+						KeyByMenu[selectedmenu].forEach(key => {
+			                const td = document.createElement("td");
+						td.textContent = row[key] ?? "";
+						tr.appendChild(td);
+						});
+			
+						const actionTd = document.createElement("td");
+			            actionTd.innerHTML = `
+			                <i class="fa-solid fa-pen-to-square edit-icon" 
+			                   data-id="${row.id}"
+			                   style="cursor:pointer; margin-right:10px; font-size:18px; color:#007bff;"></i>
+	
+			                <i class="fa-solid fa-trash delete-icon" 
+			                   data-id="${row.id}"
+			                   style="cursor:pointer; font-size:18px; color:#d9534f;"></i>`;
+			                   
+			            tr.appendChild(actionTd);
+			            table.appendChild(tr);
+					});
+					
+				})
+				 .catch(err => console.error("Error loading data:", err));
+				
+		}
+	
+	};	
+	</script>
+</body>
+</html>
