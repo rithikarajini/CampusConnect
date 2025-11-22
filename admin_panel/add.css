@@ -1,16 +1,16 @@
 @charset "UTF-8";
 
 #page-content {
-  position: relative; /* or position: static (default) */
-  margin-top: 170px; /* 130px padding-top on body + 40px extra for #menu height */
-  background: #fff;
+  position: fixed;
+  top: 190px; /* height of header + menu */
+  bottom: 0;
+  background:#fff;
+  border-radius:10px;
   padding: 10px 10px 30px 10px;
-  border-radius: 10px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 900px;
-  max-height: 80vh; /* optional */
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
 }
 
 #name {
@@ -42,6 +42,7 @@ form p {
 
 input[type="text"],
 input[type="date"],
+input[type="number"],
 select,
 input[type="file"] {
   width: 100%;
