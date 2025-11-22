@@ -1,0 +1,38 @@
+# Eclipse
+.metadata/
+.classpath
+.project
+.settings/
+bin/
+
+# Java build
+*.class
+target/
+
+# Maven / Gradle
+/target/
+/build/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Tomcat & server files
+logs/
+temp/
+work/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# IDE files
+.idea/
+*.iml
+
+# Node (if frontend exists)
+node_modules/
+
+# Build output
+dist/
+out/
+
+# Logs
+*.log
