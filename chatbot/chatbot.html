@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,7 +20,6 @@
     box-shadow: 0 8px 24px rgba(0,0,0,0.10);
     overflow: hidden;
   }
-  /* Header styling */
   #chat-header {
     background: #fff;
     border-bottom: 1px solid grey;
@@ -136,6 +134,13 @@
     box-shadow: 0 2px 6px rgba(192,192,192,0.6);
     font-weight: 400;
   }
+  /* Ensure message text wraps at word boundaries and wraps text early */
+  .message-content {
+    word-break: break-word;
+    white-space: pre-line;
+    overflow-wrap: break-word;
+    max-width: 320px; /* set lower for earlier wrapping */
+  }
   .typing .message-content {
     background: transparent;
     box-shadow: none;
@@ -166,6 +171,7 @@
     align-items: center;
     flex-shrink: 0;
   }
+  /* Use a textarea for multi-line input and word wrapping */
   #user-input {
     flex: 1;
     padding: 14px 110px 14px 20px;
@@ -176,6 +182,14 @@
     color: #262626;
     background: #f0f0f0;
     box-sizing: border-box;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-line;
+    width: 320px;
+    min-height: 42px;
+    max-height: 120px;
+    resize: none; /* disables manual resizing */
+    display: block;
   }
   #user-input:focus {
     border-color: #666666;
@@ -266,7 +280,7 @@
     </header>
     <div id="chat-window" aria-live="polite" aria-relevant="additions"></div>
     <form id="input-area" autocomplete="off" aria-label="Message input form">
-      <input id="user-input" type="text" placeholder="Say something..." aria-label="Message input" required />
+      <textarea id="user-input" placeholder="Say something..." aria-label="Message input" required></textarea>
       <button id="voice-btn" type="button" aria-label="Send voice message" title="Send voice message">
         <i class="fas fa-microphone" aria-hidden="true"></i>
       </button>
@@ -354,7 +368,7 @@
   });
   voiceButton.addEventListener('click', () => {
     voiceModal.style.display = 'flex';
-    // Here you can implement the actual voice recognition feature.
+    // Implement voice recognition feature here (future enhancement)
     setTimeout(() => {
       voiceModal.style.display = 'none';
       alert('Voice message recording feature to be implemented.');
