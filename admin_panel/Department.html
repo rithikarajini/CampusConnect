@@ -24,16 +24,28 @@
 		<a href="home.html?menu=Exam">Exam</a>
 	</div>
 	<div >
-		<a href="home.html?menu=Department">Department</a>
+		<a href="home.html?menu=Faculty">Faculty</a>
 	</div>
 	<div >
 		<a href="home.html?menu=Fees">Fees</a>
 	</div>
 </div>
 <div id="page-content">
-  <div id="name">Department</div>
+  <div id="name">Faculty</div>
   
   <form id="deptform" method="post" action="submitDept">
+  <div>
+	  <p id="Tname">Name</p>
+	  <input type="text" id="tname" required>
+  </div>
+<div>
+      <p id="Desig">Designation</p>
+      <select>
+		  <option value="HOD">HOD</option>
+		  <option value="Associate Professor">Associate Professor</option>
+		  <option value="Assistant Professor">Assistant Professor</option>
+	  </select>
+</div>
   <div>
       <p id="dept">Department</p>
       <select name="dept">
@@ -70,26 +82,8 @@
         <option value="30">B.SC Advanced Zoology</option>
       </select>
     </div>
-    <div>
-      <p id="HOD">HOD</p>
-      <input type="text" name="detptname" required>
-    </div>
-    <div>
-      <p id="asst_prof">Assistant Professor</p>
-      <input type="text" name="asst_prof1" required>
-    </div>
-    <div>
-      <p id="asst_prof">Assistant Professor</p>
-      <input type="text" name="asst_prof2" required>
-    </div>
-    <div>
-      <p id="asst_prof">Assistant Professor</p>
-      <input type="text" name="asst_prof3" required>
-    </div>
-    <div>
-      <p id="asst_prof">Assistant Professor</p>
-      <input type="text" name="asst_prof4" required>
-    </div>
+   
+    
     <div>
       <input type="submit" value="Submit">
     </div>
