@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>CampusConnect - Exam</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="header.css">
+<link rel="stylesheet" href="add.css">
+<style>
+  body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+  #page-content { max-width: 600px; margin: 100px auto 0; padding: 20px; background: #f9f9f9; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  h2 { text-align: center; margin-bottom: 30px; }
+  form div { margin-bottom: 15px; }
+  form p { margin: 0 0 5px 0; font-weight: bold; }
+  input[type="text"], input[type="date"], select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; }
+  input[type="submit"] { padding: 10px 20px; background-color: #3a7d44; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+  input[type="submit"]:hover { background-color: #2f6333; }
+  #success { display: none; color: green; margin-top: 15px; font-weight: bold; text-align: center; }
+</style>
+</head>
+<body>
+
+<div id="page-content">
+  <h2>Exam Details</h2>
+  
+  <form id="ExamForm" method="post" action="exam">
+  <p>Course Code</p>
+      <input type="text" name="course_code" required>
+    </div>
+    <div>
+      <p>Course Code</p>
+      <input type="text" name="course_code" required>
+    </div>
+    
+    <div>
+      <p>Course Name</p>
+      <input type="text" name="course_name" required>
+    </div>
+    
+    <div>
+      <p>Exam Date</p>
+      <input type="date" name="exam_date" required>
+    </div>
+    
+    <div>
+      <p>Class</p>
+      <select name="class" required>
+        <option value=""></option>
+        <option value="1st year">I</option>
+        <option value="2nd year">II</option>
+        <option value="3rd year">III</option>
+      </select>
+    </div>
+    
+    <div>
+      <p>Department</p>
+      <select name="dept_id" required>
+        <option value=""></option>
+        <option value="1">BCA</option>
+        <option value="2">Languages</option>
+        <option value="3">BA Tamil</option>
+        <option value="4">MA English</option>
+        <option value="5">BA English</option>
+        <option value="6">B.Com general A</option>
+        <option value="7">B.Com general B</option>
+        <option value="8">B.Com A&F</option>
+        <option value="9">B.Com CA</option>
+        <option value="10">B.Com Honours</option>
+        <option value="11">M.Com General</option>
+        <option value="12">B.Com CS</option>
+        <option value="13">BBA</option>
+        <option value="14">MA HRM</option>
+        <option value="15">B.SC IT</option>
+        <option value="16">M.SC IT</option>
+        <option value="17">B.SC CS</option>
+        <option value="18">BA Corporate Economics</option>
+        <option value="19">Viscom</option>
+        <option value="20">B.SC Psychology</option>
+        <option value="21">B.SC Data Science</option>
+        <option value="22">MA Communication</option>
+        <option value="23">B.SC Maths</option>
+        <option value="24">M.SC Maths</option>
+        <option value="25">B.SC Physics</option>
+        <option value="26">B.SC Chemistry</option>
+        <option value="27">B.SC Plant Biology</option>
+        <option value="28">B.SC Home Science</option>
+        <option value="29">BA History</option>
+        <option value="30">B.SC Advanced Zoology</option>
+      </select>
+    </div>
+    
+    <div>
+      <p>Exam Type</p>
+      <select name="exam_type" required>
+        <option value=""></option>
+        <option value="cia1">CIA 1</option>
+        <option value="cia2">CIA 2</option>
+        <option value="semester">Semester</option>
+        <option value="arrear">Arrear</option>
+      </select>
+    </div>
+    
+    <div>
+      <input type="submit" value="Submit">
+    </div>
+
+    <div id="success">Exam added successfully!</div>
+  </form>
+</div>
+
+</body>
+</html>
