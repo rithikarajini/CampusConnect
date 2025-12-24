@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="header.css"><link rel="stylesheet" href="add.css">
+<meta charset="UTF-8">
+<title>CampusConnect</title>
+</head>
+<body>
+
+<div style="position: fixed; width: 500px; height: 400px;">
+  <img src="clogo.png"style="width: 130px; height: auto; position: fixed; top: 10px; left: 0;" >
+ </div>
+<h2 id="title">
+  <span class="dark-green">Campus</span> 
+  <span class="light-green">Connect</span>
+</h2>
+<div id="menu">
+	<div >
+		<a href="add.html?menu=Event">Event</a>
+	</div>
+	<div>
+		<a href="add.html?menu=Exam">Exam</a>
+	</div>
+	<div >
+		<a href="add.html?menu=Faculty">Faculty</a>
+	</div>
+	<div >
+		<a href="add.html?menu=Fees">Fees</a>
+	</div>
+</div>
+<div id="page-content">
+  <div id="name">Faculty</div>
+  
+
+<form method="post" action="faculty">
+
+  <div>
+    <label>Name</label><br>
+    <input type="text" name="name" required>
+  </div><br>
+
+  <div>
+    <label>Designation</label><br>
+    <select name="designation" required>
+      <option value="">Select</option>
+      <option value="HOD">HOD</option>
+      <option value="Associate Professor">Associate Professor</option>
+      <option value="Assistant Professor">Assistant Professor</option>
+    </select>
+  </div><br>
+
+  <div>
+    <label>Department</label><br>
+    <select name="department" required>
+      <option value="">Select</option>
+      <option value="BCA">BCA</option>
+      <option value="Languages">Languages</option>
+      <option value="BA Tamil">BA Tamil</option>
+      <option value="MA English">MA English</option>
+    </select>
+  </div><br>
+
+  <input type="submit" value="Submit">
+
+</form>
+
+</body>
+</html>
