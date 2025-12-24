@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>CampusConnect - Fees</title>
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="header.css">
+<link rel="stylesheet" href="add.css">
+
+<style>
+  body { font-family: Arial,sans-serif; background:#f7f7f7; }
+  #menu div a { text-decoration:none; padding:8px 15px; border-radius:5px; font-weight:600; color:#333; display:inline-block; }
+  #menu div a.active, #menu div a:hover { background-color:#3a7d44; color:white; }
+  #page-content { max-width:900px; margin:50px auto; background:white; padding:20px; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
+  table { border-collapse: collapse; width:100%; margin-top:20px; }
+  table, th, td { border:1px solid #ccc; }
+  th, td { padding:10px 15px; text-align:center; }
+  th { background:#b5d8a6; }
+  a.action-delete { cursor:pointer; color:#d9534f; font-weight:600; text-decoration:none; }
+  a.action-delete:hover { color:#c82333; }
+  .success-toast { position:fixed; top:20px; right:20px; background:#28a745; color:white; padding:15px 20px; border-radius:8px; z-index:10001; }
+</style>
+</head>
+<body>
+
+<h2>Fees Management</h2>
+<div id="menu">
+  <div><a href="add.html?menu=Event">Event</a></div>
+  <div><a href="add.html?menu=Exam">Exam</a></div>
+  <div><a href="add.html?menu=Faculty">Faculty</a></div>
+  <div><a href="#" class="active">Fees</a></div>
+</div>
+
+<div id="page-content">
+  <!-- ADD FORM -->
+  <form id="feeForm">
+    <div>
+      <label>Amount</label><br>
+      <input type="number" name="amount" required>
+    </div>
+    <div>
+      <label>Last Date</label><br>
+      <input type="date" name="last_date" required>
+    </div>
+    <div>
+      <label>Semester</label><br>
+      <select name="semester" required>
+        <option value="">Select</option>
+        <option value="1">I</option>
+        <option value="2">II</option>
+        <option value="3">III</option>
+        <option value="4">IV</option>
+        <option value="5">V</option>
+        <option value="6">VI</option>
+      </select>
+    </div>
+    <div>
+      <button type="submit">Add Fee</button>
+    </div>
+  </form>
+
+  <!-- TABLE CONTAINER -->
+  <div id="table-container"></div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+
+  const tableContainer = document.getElementById("table-container");
+  const feeForm = document.getElementById("feeForm");
+
+  // Load fees table
+  function loadFees(){
+    fetch("home_fees")
+    .then(res=>res.text())
+    .then(html=>{
+      tableContainer.innerHTML=html;
+      attachDeleteListeners();
+    })
+    .catch(err=> tableContainer.innerHTML="<p>Error loading data</p>");
+  }
+  loadFees();
+
+  // Add Fee
+  feeForm.addEventListener("submit", function(e){
+    e.preventDefault();
+    const data = new FormData(feeForm);
+    fetch("fees", { method:"POST", body:data })
+    .then(res=>res.text())
+    .then(txt=>{
+      if(txt.includes("Fee added successfully")){
+        showToast("Fee added successfully!");
+        feeForm.reset();
+        loadFees();
+      }else{
+        alert("Failed: "+txt);
+      }
+    })
+    .catch(err=>alert("Error: "+err));
+  });
+
+  // DELETE - immediate
+  function attachDeleteListeners(){
+    tableContainer.querySelectorAll("a.action-delete").forEach(a=>{
+      a.onclick=function(e){
+        e.preventDefault();
+        const row=this.closest("tr");
+        const id=this.dataset.id;
+
+        // Remove visually
+        row.remove();
+        renumberRows();
+
+        // Delete from DB
+        fetch("home_fees", {
+          method:"POST",
+          headers:{'Content-Type':'application/x-www-form-urlencoded'},
+          body:"action=delete&fee_id="+id
+        })
+        .then(res=>res.text())
+        .then(txt=>{
+          if(txt==="SUCCESS"){
+            showToast("Fee deleted successfully!");
+          } else alert("Delete failed!");
+        })
+        .catch(err=>console.error("Delete error:", err));
+      };
+    });
+  }
+
+  function renumberRows(){
+    const rows = tableContainer.querySelectorAll("tbody tr");
+    rows.forEach((r,i)=> r.cells[0].textContent=i+1);
+  }
+
+  function showToast(msg){
+    const t = document.createElement("div");
+    t.className="success-toast";
+    t.textContent=msg;
+    document.body.appendChild(t);
+    setTimeout(()=>t.remove(),3000);
+  }
+
+});
+</script>
+
+</body>
+</html>
