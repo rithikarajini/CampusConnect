@@ -7,10 +7,9 @@ import jakarta.servlet.http.*;
 @WebServlet("/home_event")
 public class home_event extends HttpServlet {
 
-    private static final String JDBC_URL = "jdbc:mysql://localhost:3306/campusconnect";
-    private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "25swathi14";
-
+    private static final String URL = "jdbc:mysql://localhost:3306/campusconnect?useSSL=false";
+    private static final String USER = "root";
+    private static final String PASS = "Rithika@14";
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -19,7 +18,7 @@ public class home_event extends HttpServlet {
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASSWORD);
+            Connection conn = DriverManager.getConnection(URL, USER, PASS);
 
             if(idParam != null) {
                 int id = Integer.parseInt(idParam);
@@ -84,12 +83,12 @@ public class home_event extends HttpServlet {
         String rulebook = request.getParameter("rulebook");
 
         try {
-            Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASSWORD);
+            Connection conn = DriverManager.getConnection(URL, USER, PASS);
             PreparedStatement ps = conn.prepareStatement("UPDATE event SET event_name=?, event_date=?, department=?, rulebook=? WHERE event_id=?");
             ps.setString(1,name); ps.setString(2,date); ps.setString(3,dept); ps.setString(4,rulebook); ps.setInt(5,id);
             ps.executeUpdate();
             ps.close(); conn.close();
-            response.sendRedirect("add.html?menu=Event");
+            response.sendRedirect("home.html?menu=Event");
         } catch(Exception e){ e.printStackTrace(); }
     }
 
@@ -99,7 +98,7 @@ public class home_event extends HttpServlet {
         if(idParam==null){response.sendError(400,"Missing id"); return;}
         try {
             int id = Integer.parseInt(idParam);
-            Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASSWORD);
+            Connection conn = DriverManager.getConnection(URL, USER, PASS);
             PreparedStatement ps = conn.prepareStatement("DELETE FROM event WHERE event_id=?");
             ps.setInt(1,id);
             int rows = ps.executeUpdate();

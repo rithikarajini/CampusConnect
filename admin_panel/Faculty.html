@@ -33,23 +33,28 @@
 <div id="page-content">
   <div id="name">Faculty</div>
   
-  <form id="deptform" method="post" action="submitDept">
+  <form id="deptform" method="post" action="/CampusConnect/faculty">
   <div>
-	  <p id="Tname">Name</p>
-	  <input type="text" id="tname" required>
+	  <p>First Name</p>
+	  <input type="text" id="fname" required>
+	  <br>
+	  <br>
+	   <p>Last Name</p>
+	  <input type="text" id="lname" required>
   </div>
 <div>
-      <p id="Desig">Designation</p>
-      <select>
+      <p>Designation</p>
+      <input list="desig">
+      <datalist id="desig">
 		  <option value="HOD">HOD</option>
 		  <option value="Associate Professor">Associate Professor</option>
 		  <option value="Assistant Professor">Assistant Professor</option>
-	  </select>
+	 </datalist>
 </div>
   <div>
-      <p id="dept">Department</p>
-      <select name="dept">
-      <option valule=""></option>
+  <p >Department</p>
+         <select name="dept">
+      <option value=""></option>
         <option value="1">BCA</option>
         <option value="2">Languages</option>
         <option value="3">BA Tamil</option>

@@ -16,9 +16,9 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebServlet("/home_faculty")
 public class home_faculty extends HttpServlet {
 
-    private static final String JDBC_URL = "jdbc:mysql://localhost:3306/campusconnect";
-    private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "25swathi14";
+    private static final String URL = "jdbc:mysql://localhost:3306/campusconnect?useSSL=false";
+    private static final String USER = "root";
+    private static final String PASS = "Rithika@14";
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -26,26 +26,27 @@ public class home_faculty extends HttpServlet {
 
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        String idParam = request.getParameter("id");
+        String idParam = request.getParameter("f_id");
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASSWORD);
+            Connection conn = DriverManager.getConnection(URL, USER, PASS);
 
             // EDIT FORM
             if (idParam != null) {
-                int id = Integer.parseInt(idParam);
+                int f_id = Integer.parseInt(idParam);
                 PreparedStatement ps = conn.prepareStatement(
-                        "SELECT id,name,designation,department FROM faculty WHERE id=?");
-                ps.setInt(1, id);
+                        "SELECT f_id,Firstname,lastname,designation,dept_id FROM faculty WHERE f_id=?");
+                ps.setInt(1, f_id);
                 ResultSet rs = ps.executeQuery();
                 if(rs.next()) {
                     out.println("<h3>Edit Faculty</h3>");
                     out.println("<form method='post' action='home_faculty'>");
-                    out.println("<input type='hidden' name='id' value='"+rs.getInt("id")+"'>");
-                    out.println("Name:<input type='text' name='name' value='"+rs.getString("name")+"'><br>");
+                    out.println("<input type='hidden' name='f_id' value='"+rs.getInt("f_id")+"'>");
+                    out.println("First Name:<input type='text' name='fname' value='"+rs.getString("Fisrtname")+"'><br>");
+                    out.println("last Name:<input type='text' name='lname' value='"+rs.getString("lastname")+"'><br>");
                     out.println("Designation:<input type='text' name='designation' value='"+rs.getString("designation")+"'><br>");
-                    out.println("Department:<input type='text' name='department' value='"+rs.getString("department")+"'><br>");
+                    out.println("dept_id:<input type='text' name='dept_id' value='"+rs.getString("dept_id")+"'><br>");
                     out.println("<input type='submit' value='Update'>");
                     out.println("</form>");
                 }
@@ -55,20 +56,21 @@ public class home_faculty extends HttpServlet {
             // TABLE LIST
             else {
                 Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT id,name,designation,department FROM faculty ORDER BY id");
+                ResultSet rs = stmt.executeQuery("SELECT f_id,Firstname,lastname,designation,dept_id FROM faculty ORDER BY f_id");
                 out.println("<table border='1'>");
-                out.println("<tr><th>ID</th><th>Name</th><th>Designation</th><th>Department</th><th>Actions</th></tr>");
+                out.println("<tr><th>f_id</th><th>First Name</th><th>last Name</th><th>Designation</th><th>dept_id</th><th>Actions</th></tr>");
                 int i=1;
                 while(rs.next()) {
-                    int id = rs.getInt("id");
+                    int f_id = rs.getInt("f_id");
                     out.println("<tr>");
                     out.println("<td>"+i+++"</td>");
-                    out.println("<td>"+rs.getString("name")+"</td>");
+                    out.println("<td>"+rs.getString("Firstname")+"</td>");
+                    out.println("<td>"+rs.getString("lastname")+"</td>");
                     out.println("<td>"+rs.getString("designation")+"</td>");
-                    out.println("<td>"+rs.getString("department")+"</td>");
+                    out.println("<td>"+rs.getString("dept_id")+"</td>");
                     out.println("<td>");
-                    out.println("<a class='action-edit' href='home_faculty?id="+id+"'><i class='fa-solid fa-pen-to-square'></i></a> ");
-                    out.println("<a class='action-delete' data-id='"+id+"'><i class='fa-solid fa-trash'></i></a>");
+                    out.println("<a class='action-edit' href='home_faculty?f_f_id="+f_id+"'><i class='fa-solid fa-pen-to-square'></i></a> ");
+                    out.println("<a class='action-delete' data-f_id='"+f_id+"'><i class='fa-solid fa-trash'></i></a>");
                     out.println("</td>");
                     out.println("</tr>");
                 }
@@ -82,9 +84,9 @@ public class home_faculty extends HttpServlet {
                 out.println("delLink.onclick=function(e){");
                 out.println("e.preventDefault();");
                 out.println("const row=this.closest('tr');");
-                out.println("const id=this.dataset.id;");
+                out.println("const f_id=this.dataset.f_id;");
                 out.println("if(!confirm('Delete this row permanently?')) return;");
-                out.println("fetch('home_faculty?id='+id,{method:'DELETE'})");
+                out.println("fetch('home_faculty?f_id='+f_id,{method:'DELETE'})");
                 out.println(".then(resp=>{if(resp.ok){row.remove();} else {alert('Delete failed');}})");
                 out.println(".catch(err=>alert('Delete error: '+err));");
                 out.println("}");
@@ -104,23 +106,25 @@ public class home_faculty extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        int id = Integer.parseInt(request.getParameter("id"));
-        String name = request.getParameter("name");
+        int f_id = Integer.parseInt(request.getParameter("f_id"));
+        String Firstname = request.getParameter("Firstname");
+        String lastname = request.getParameter("lastname");
         String designation = request.getParameter("designation");
-        String department = request.getParameter("department");
+        String dept_id = request.getParameter("dept_id");
 
         try {
-            Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASSWORD);
-            PreparedStatement ps = conn.prepareStatement("UPDATE faculty SET name=?,designation=?,department=? WHERE id=?");
-            ps.setString(1, name);
+            Connection conn = DriverManager.getConnection(URL,USER, PASS);
+            PreparedStatement ps = conn.prepareStatement("UPDATE faculty SET Firstname=?,lastname=?,designation=?,dept_id=? WHERE f_id=?");
+            ps.setString(1, Firstname);
+            ps.setString(1, lastname);
             ps.setString(2, designation);
-            ps.setString(3, department);
-            ps.setInt(4, id);
+            ps.setString(3, dept_id);
+            ps.setInt(4, f_id);
             ps.executeUpdate();
             ps.close();
             conn.close();
 
-            response.sendRedirect("add.html?menu=Faculty"); // redirect to menu page
+            response.sendRedirect("home.html?menu=Faculty"); // redirect to menu page
         } catch(Exception e) { e.printStackTrace(); }
     }
 
@@ -129,13 +133,13 @@ public class home_faculty extends HttpServlet {
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String idParam = request.getParameter("id");
-        if(idParam==null) { response.sendError(400,"Missing id"); return; }
+        String idParam = request.getParameter("f_id");
+        if(idParam==null) { response.sendError(400,"Missing f_id"); return; }
         try {
-            int id = Integer.parseInt(idParam);
-            Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASSWORD);
-            PreparedStatement ps = conn.prepareStatement("DELETE FROM faculty WHERE id=?");
-            ps.setInt(1, id);
+            int f_id = Integer.parseInt(idParam);
+            Connection conn = DriverManager.getConnection(URL,USER,PASS);
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM faculty WHERE f_id=?");
+            ps.setInt(1, f_id);
             int rows = ps.executeUpdate();
             if(rows>0) response.setStatus(200);
             else response.sendError(404,"Not found");

@@ -9,12 +9,11 @@
     height: 100%;
     margin: 0; padding: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-image: url('WhatsApp-Image-2025-11-16-at-18.36.25_8c651a7b.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    background-color: #cad3b3; /* matches logo background */
+    background-color:  #ccd6b4; /* matches logo background */
     min-height: 100vh;
     position: relative;
   }
@@ -28,7 +27,6 @@
     width: auto;
     object-fit: contain;
     z-index: 1000;
-    filter: drop-shadow(0 3px 8px rgba(32,91,111,0.15));
   }
 
   /* Brand text fixed and horizontally centered */
@@ -129,7 +127,7 @@
 <body>
 
 <!-- Big logo fixed in top-left corner -->
-<img id="logo-campus" src="logo.png" alt="CampusConnect Logo" />
+<img id="logo-campus" src="clogo.png" alt="CampusConnect Logo" />
 
 <!-- Brand text horizontally centered -->
 <div id="brand-text" aria-label="CampusConnect Brand">
@@ -139,7 +137,7 @@
 <div id="main-content">
   <div id="login-container" role="main" aria-label="Admin Login Form">
     <h2>Admin Login</h2>
-    <form id="login-form" aria-describedby="login-error" novalidate>
+    <form id="login-form" aria-describedby="login-error" novalidate action="Loginservlet" method="post">
       <label for="username">Username</label>
       <input type="text" id="username" name="username" aria-required="true" autocomplete="username" placeholder="Enter username" />
 

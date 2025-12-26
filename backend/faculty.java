@@ -10,13 +10,12 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@WebServlet("/Faculty")
+@WebServlet("/faculty")
 public class faculty extends HttpServlet {
 
-    private static final String JDBC_URL =
-        "jdbc:mysql://localhost:3306/campusconnect";
-    private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "25swathi14";
+    private static final String URL = "jdbc:mysql://localhost:3306/campusconnect?useSSL=false";
+    private static final String USER = "root";
+    private static final String PASS = "Rithika@14";
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -24,32 +23,30 @@ public class faculty extends HttpServlet {
 
         request.setCharacterEncoding("UTF-8");
 
-        String name = request.getParameter("name");
-        String designation = request.getParameter("designation");
-        String department = request.getParameter("department");
+        String fname = request.getParameter("fname");
+        String lname = request.getParameter("lname");
+        String designation = request.getParameter("desig");
+        String department = request.getParameter("dept");
 
-        // DEBUG – MUST SHOW VALUES
-        System.out.println(name);
-        System.out.println(designation);
-        System.out.println(department);
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection conn = DriverManager.getConnection(
-                    JDBC_URL, DB_USER, DB_PASSWORD);
+                    URL, USER, PASS);
 
             String sql =
-              "INSERT INTO faculty(name, designation, department) VALUES (?, ?, ?)";
+              "INSERT INTO faculty(Firstname, lastname, designation, dept_id) VALUES (?, ?, ?,?)";
 
             PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setString(1, name);
-            ps.setString(2, designation);
-            ps.setString(3, department);
+            ps.setString(1, fname);
+            ps.setString(2, lname);
+            ps.setString(3, designation);
+            ps.setString(4, department);
 
             ps.executeUpdate();
             conn.close();
 
-            response.getWriter().println("Faculty Added Successfully");
+            response.sendRedirect("admin_panel/home.html?menu=Faculty");
 
         } catch (Exception e) {
             e.printStackTrace();

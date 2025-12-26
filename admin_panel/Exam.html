@@ -33,7 +33,7 @@
 <div id="page-content">
   <div id="name">EXAM</div>
   
-  <form id="Exanform" method="post" action="submitExam">
+  <form id="Exanform" method="post" action="/CampusConnect/exam">
     <div>
       <p id="code">Course Code</p>
       <input type="text" name="code" required>
@@ -44,7 +44,7 @@
     </div>
     <div>
       <p id="date">Exam Date</p>
-      <input type="date" name="evt_date" required>
+      <input type="date" name="exm_date" required>
     </div>
      <div>
       <p id="class">Class</p>
@@ -91,6 +91,27 @@
         <option value="30">B.SC Advanced Zoology</option>
       </select>
     </div>
+      <div>
+      <p id="sem">Semester</p>
+      <select name="sem" required>
+      <option value=""></option>
+        <option value="1">I</option>
+        <option value="2">II</option>
+        <option value="3">III</option>
+        <option value="4">IV</option>
+        <option value="5">V</option>
+        <option value="6">VI</option>
+      </select>
+	</div>
+	  <div>
+      <p id="exam_type">Type</p>
+      <select name="exam_type" required>
+      <option value=""></option>
+        <option value="cia 1">CIA 1</option>
+        <option value="cia 2">CIA 2</option>
+        <option value="semester">Semester</option>
+      </select>
+	</div>
     <div>
       <input type="submit" value="Submit">
     </div>

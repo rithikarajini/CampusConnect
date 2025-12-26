@@ -44,6 +44,7 @@ input[type="text"],
 input[type="date"],
 input[type="number"],
 select,
+input[list="desig"],
 input[type="file"] {
   width: 300px;
   padding: 10px;
@@ -54,20 +55,23 @@ input[type="file"] {
   transition: border-color 0.3s ease;
 }
 
-select{
+select
+{
    width: 320px;
 }
 input[type="text"]:focus,
 input[type="date"]:focus,
 input[type="number"]:focus,
-select:focus 
-input[type="file"]:hover{
+select:focus,
+input[list="desig"]:focus, 
+input[type="file"]:focus{
   border-color: #2e7d32;
 }
 input[type="text"]:hover,
 input[type="date"]:hover,
 input[type="number"]:hover,
 select:hover,
+input[list="desig"]:hover,
 input[type="file"]:hover{
   border-color: #3db846;
 }

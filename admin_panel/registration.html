@@ -14,7 +14,7 @@
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    background-color: #dbe4c2;
+    background-color:  #ccd6b4;
     min-height: 100vh;
     position: relative;
   }
@@ -28,7 +28,6 @@
     width: auto;
     object-fit: contain;
     z-index: 1000;
-    filter: drop-shadow(0 3px 8px rgba(32,91,111,0.15));
   }
 
   /* Brand text fixed and centered horizontally */
@@ -159,7 +158,7 @@
 </head>
 <body>
 
-<img id="logo-campus" src="yellowlogo.jpg" alt="CampusConnect Logo" />
+<img id="logo-campus" src="clogo.png" alt="CampusConnect Logo" />
 
 <div id="brand-text" aria-label="CampusConnect Brand">
   <span class="campus">Campus</span><span class="connect">Connect</span>
@@ -168,7 +167,7 @@
 <div id="main-content">
   <div id="register-container" role="main" aria-label="Admin Registration Form">
     <h2>Admin Registration</h2>
-    <form id="register-form" aria-describedby="register-status" novalidate>
+    <form id="register-form" aria-describedby="register-status" novalidate action="Registrationservlet" method="post">
       <label for="username">Username</label>
       <input type="text" id="username" name="username" aria-required="true" autocomplete="username" placeholder="Enter username" />
 
@@ -182,13 +181,12 @@
       <input type="password" id="confirm-password" name="confirm-password" aria-required="true" autocomplete="new-password" placeholder="Confirm password" />
 
       <div id="register-status" class="error-message" role="alert">Please fill all fields correctly</div>
-      <div id="register-success" class="success-message" role="status">Registration successful! Redirecting...</div>
-
-      <button type="submit">Register</button>
+      <div id="register-success" class="success-message" role="status">Registration successful!</div>
+	<button>Register</button>
     </form>
 
     <div class="link">
-      Already have an account? <a href="admin-login.html">Login here</a>
+      Already have an account? <a href="login.html">Login here</a>
     </div>
   </div>
 </div>
@@ -226,10 +224,7 @@
 
     // TODO: Add actual registration logic here
     setTimeout(() => {
-      alert(`Registration successful.\nUsername: ${username}\nEmail: ${email}`);
-      registerForm.reset();
-      successMessage.style.display = 'none';
-      window.location.href = 'admin-login.html'; // Redirect after registration
+      window.location.href = 'home.html'; // Redirect after registration
     }, 1500);
   });
 </script>

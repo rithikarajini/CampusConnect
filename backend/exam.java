@@ -11,13 +11,13 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@WebServlet("/Exam")  // This must match your form action
+@WebServlet("/exam")  // This must match your form action
 public class exam extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    private static final String JDBC_URL = "jdbc:mysql://localhost:3306/campusconnect?useSSL=false&serverTimezone=UTC";
-    private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "25swathi14";
+    private static final String URL = "jdbc:mysql://localhost:3306/campusconnect?useSSL=false";
+    private static final String USER = "root";
+    private static final String PASS = "Rithika@14";
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -28,12 +28,13 @@ public class exam extends HttpServlet {
         PrintWriter out = response.getWriter();
 
         // Get parameters from form
-        String courseCode = request.getParameter("course_code");
-        String courseName = request.getParameter("course_name");
-        String examDate = request.getParameter("exam_date");
+        String courseCode = request.getParameter("code");
+        String courseName = request.getParameter("cname");
+        String examDate = request.getParameter("exm_date");
         String cls = request.getParameter("class");
-        String deptId = request.getParameter("dept_id");
+        String deptId = request.getParameter("dept");
         String examType = request.getParameter("exam_type");
+        String semester = request.getParameter("sem");
 
         // Basic validation
         if(courseCode == null || courseName == null || examDate == null ||
@@ -50,10 +51,10 @@ public class exam extends HttpServlet {
             Class.forName("com.mysql.cj.jdbc.Driver");
 
             // Connect to DB
-            try (Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASSWORD)) {
+            try (Connection conn = DriverManager.getConnection(URL, USER,PASS) ) {
                 // Insert SQL
-                String sql = "INSERT INTO exam (course_code, course_name, exam_date, class, dept_id, exam_type) " +
-                             "VALUES (?, ?, ?, ?, ?, ?)";
+                String sql = "INSERT INTO exam (course_code, course_name, exam_date, classes, dept_id, exam_type,semester) " +
+                             "VALUES (?, ?, ?, ?, ?, ?,?)";
                 try (PreparedStatement ps = conn.prepareStatement(sql)) {
                     ps.setString(1, courseCode);
                     ps.setString(2, courseName);
@@ -61,14 +62,10 @@ public class exam extends HttpServlet {
                     ps.setString(4, cls);
                     ps.setString(5, deptId);
                     ps.setString(6, examType);
+                    ps.setString(7, semester);
 
-                    int result = ps.executeUpdate();
-                    if(result > 0) {
-                        out.println("Exam added successfully.");
-                    } else {
-                        out.println("Failed to add exam.");
-                    }
                 }
+                response.sendRedirect("admin_panel/home.html?menu=Exam");
             }
         } catch (Exception e) {
             e.printStackTrace();

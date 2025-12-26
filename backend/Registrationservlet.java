@@ -8,7 +8,7 @@ import jakarta.servlet.annotation.WebServlet;
 
 @WebServlet("/Registrationservlet")
 public class Registrationservlet extends HttpServlet {
-    private static final String query = "INSERT INTO REGICC(ID,USERNAME,EMAIL,PASSWORD,CONFIRM_PASSWORD) VALUES(?,?,?,?,?)"; 
+    private static final String query = "INSERT INTO REGICC(ID,USERNAME,EMAIL,PASSWORD) VALUES(?,?,?,?)"; 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
@@ -18,7 +18,6 @@ public class Registrationservlet extends HttpServlet {
         String username = request.getParameter("username");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
-        String confirm_password = request.getParameter("confirm_password");
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
         }
@@ -26,13 +25,12 @@ public class Registrationservlet extends HttpServlet {
         	cnf.printStackTrace();
         
         }
-            try(Connection conn = DriverManager.getConnection("jdbc:mysql:///campusconnect", "root", "25swathi14");
+            try(Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/campusconnect?useSSL=false", "root", "Rithika@14");
             	PreparedStatement psInsert = conn.prepareStatement(query);){
                 psInsert.setInt(1, id);
                 psInsert.setString(2, username);
                 psInsert.setString(3,email);
                 psInsert.setString(4, password);
-                psInsert.setString(5, confirm_password);
 
                 int count = psInsert.executeUpdate();
                 

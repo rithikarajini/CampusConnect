@@ -33,7 +33,7 @@
 <div id="page-content">
   <div id="name">FEES</div>
   
-  <form id="feeform" method="post" action="submitFees">
+  <form id="feeform" method="post" action="/CampusConnect/fees">
     <div>
       <p id="amt">Amount</p>
       <input type="number" name="amt" required>
@@ -44,14 +44,14 @@
     </div>
     <div>
       <p id="sem">Semester</p>
-      <select name="sem">
-      <option valule=""></option>
-        <option value="I">I</option>
-        <option value="II">II</option>
-        <option value="III">III</option>
-        <option value="IV">IV</option>
-        <option value="V">V</option>
-        <option value="VI">VI</option>
+      <select name="sem" required>
+      <option value=""></option>
+        <option value="1">I</option>
+        <option value="2">II</option>
+        <option value="3">III</option>
+        <option value="4">IV</option>
+        <option value="5">V</option>
+        <option value="6">VI</option>
       </select>
 	</div>
     <div>

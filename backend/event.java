@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 
-@WebServlet("/Event")
+@WebServlet("/event")
 @MultipartConfig(
     fileSizeThreshold = 1024 * 1024 * 2,  // 2MB
     maxFileSize = 1024 * 1024 * 10,       // 10MB
@@ -23,9 +23,9 @@ import jakarta.servlet.http.Part;
 public class event extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    private static final String JDBC_URL = "jdbc:mysql://localhost:3306/campusconnect";
-    private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "25swathi14";
+    private static final String URL = "jdbc:mysql://localhost:3306/campusconnect?useSSL=false";
+    private static final String USER = "root";
+    private static final String PASS = "Rithika@14";
 
     private static final String UPLOAD_DIR = "uploads/rulebooks";
 
@@ -33,9 +33,9 @@ public class event extends HttpServlet {
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
 
-        String eventName = request.getParameter("event_name");
-        String eventDate = request.getParameter("event_date");
-        String deptIdStr = request.getParameter("department");
+        String eventName = request.getParameter("evt_name");
+        String eventDate = request.getParameter("evt_date");
+        String deptIdStr = request.getParameter("dept");
         int deptId = 0;
         if (deptIdStr != null && !deptIdStr.isEmpty()) {
             deptId = Integer.parseInt(deptIdStr);
@@ -64,7 +64,7 @@ public class event extends HttpServlet {
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASSWORD)) {
+            try (Connection conn = DriverManager.getConnection(URL, USER, PASS)) {
                 // Insert event details with rulebook URL
                 String sql = "INSERT INTO event (event_name, event_date, department, rulebook) VALUES (?, ?, ?, ?)";
                 try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -72,15 +72,9 @@ public class event extends HttpServlet {
                     ps.setString(2, eventDate);
                     ps.setInt(3, deptId);
                     ps.setString(4, fileUrl);
-
-                    int result = ps.executeUpdate();
-                    if (result > 0) {
-                        response.getWriter().println("Event added successfully.");
-                    } else {
-                        response.getWriter().println("Failed to add event.");
-                    }
                 }
             }
+            response.sendRedirect("admin_panel/home.html?menu=event");
         } catch (Exception e) {
             e.printStackTrace();
             response.getWriter().println("Error: " + e.getMessage());

@@ -30,7 +30,7 @@ public class Loginservlet extends HttpServlet {
         
         Connection conn = null;
         try {
-            conn = DriverManager.getConnection("jdbc:mysql:///campusconnect", "root", "25swathi14");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/campusconnect?useSSL=false", "root", "Rithika@14");
             
             // ✅ INSERT new user into LOGINCC table
             PreparedStatement psInsert = conn.prepareStatement(query);
