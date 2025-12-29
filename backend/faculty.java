@@ -1,4 +1,6 @@
+
 import java.io.IOException;
+
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -13,9 +15,9 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebServlet("/faculty")
 public class faculty extends HttpServlet {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/campusconnect?useSSL=false";
+    private static final String URL = "jdbc:mysql://localhost:3306/demo2?useSSL=false";
     private static final String USER = "root";
-    private static final String PASS = "Rithika@14";
+    private static final String PASS = "25swathi14";
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -28,25 +30,23 @@ public class faculty extends HttpServlet {
         String designation = request.getParameter("desig");
         String department = request.getParameter("dept");
 
+        
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection conn = DriverManager.getConnection(
                     URL, USER, PASS);
 
-            String sql =
-              "INSERT INTO faculty(Firstname, lastname, designation, dept_id) VALUES (?, ?, ?,?)";
-
+            String sql = "INSERT INTO faculty(Firstname, lastname, designation, dept_id) VALUES (?, ?, ?, ?)";
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, fname);
             ps.setString(2, lname);
             ps.setString(3, designation);
             ps.setString(4, department);
-
             ps.executeUpdate();
             conn.close();
 
-            response.sendRedirect("admin_panel/home.html?menu=Faculty");
+            response.sendRedirect("home.html?menu=Faculty");
 
         } catch (Exception e) {
             e.printStackTrace();
