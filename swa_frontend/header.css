@@ -1,0 +1,218 @@
+@charset "UTF-8";
+
+/* =========================
+   BODY
+   ========================= */
+body {
+  padding-top: 180px;
+  margin: 10px;
+  font-family: 'Satoshi', 'DM Serif Display', sans-serif;
+  background: #ccd6b4;
+  min-height: 100vh;
+  color: #000;
+  overflow-x: hidden;
+}
+
+/* =========================
+   TITLE
+   ========================= */
+#title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  height: 80px;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  margin: 0;
+  position: fixed;
+  font-size: 60px;
+  color: #fff;
+  font-family: 'DM Serif Display', serif;
+  z-index: 1000;
+}
+
+#title .dark-green { color: #006a6a; }
+#title .light-green { color: #3db846; }
+
+/* =========================
+   MENU
+   ========================= */
+#menu {
+  display: flex;
+  justify-content: space-between;
+  width: 100vw;
+  background-color: #fff;
+  top: 120px;
+  left: 0;
+  position: fixed;
+  margin: 0;
+  font-size: 25px;
+  z-index: 100;
+  border-radius: 0;
+}
+
+#menu > * {
+  flex-grow: 1;
+  flex-shrink: 0;
+  flex-basis: 0;
+  text-align: center;
+  box-sizing: border-box;
+  border-left: 1px solid #808080;
+  border-radius: 0;
+}
+
+#menu div a {
+  color: #000;
+  text-decoration: none;
+  display: block;
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  border-radius: 0;
+  transition: background-color 0.15s ease, color 0.10s ease;
+}
+
+#menu div a:hover {
+  background-color: #006a6a !important;
+  color: white !important;
+  font-size: 25px; /* fixed size to avoid visual curve */
+}
+
+#menu > div > a.active {
+  background-color: #3db846 !important;
+  color: white !important;
+  font-size: 25px;
+}
+
+/* =========================
+   TABLE CONTAINER
+   ========================= */
+#table-container {
+  margin-top: 50px;
+  background: white;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: 0; /* straight corners */
+  max-width: 1200px;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  height: 250px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+/* =========================
+   TABLE STYLING
+   ========================= */
+table {
+  border-collapse: collapse;
+  font-family: Arial, sans-serif;
+  margin: 0 auto;
+  table-layout: fixed;
+  width: max-content;
+  min-width: 100%;
+}
+
+table, th, td {
+  border: 1px solid #ccc;
+}
+
+th, td {
+  padding: 10px 20px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+th {
+  background-color: #b5d8a6;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+}
+
+/* =========================
+   ACTION BUTTONS
+   ========================= */
+a.action-delete {
+  cursor: pointer;
+  color: #d9534f;
+  font-weight: 600;
+  padding: 8px;
+  border-radius: 0;
+  display: inline-block;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+a.action-delete:hover {
+  background-color: #ffebee;
+  color: #c82333;
+  transform: scale(1.1);
+}
+
+a.action-edit {
+  cursor: pointer;
+  color: #007bff;
+  font-weight: 600;
+  padding: 8px;
+  border-radius: 0;
+  display: inline-block;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+a.action-edit:hover {
+  background-color: #e0f0ff;
+  color: #0056b3;
+  transform: scale(1.1);
+}
+
+/* =========================
+   ADD BUTTON
+   ========================= */
+#btn {
+  text-align: center;
+  margin-top: 15px;
+}
+
+#btn input[type="button"] {
+  background-color: #006a6a;
+  color: #fff;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 0;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#btn input[type="button"]:hover {
+  background-color: #3db846;
+  transform: scale(1.05);
+}
+
+/* =========================
+   TOAST NOTIFICATION
+   ========================= */
+.success-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #28a745;
+  color: white;
+  padding: 15px 20px;
+  border-radius: 0;
+  z-index: 10001;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  animation: toastSlideIn 0.3s ease-out;
+  max-width: 350px;
+}
+
+@keyframes toastSlideIn {
+  from { transform: translateX(100%); opacity:0; }
+  to { transform: translateX(0); opacity:1; }
+}
