@@ -1,6 +1,4 @@
 import java.io.File;
-
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -16,77 +14,101 @@ import jakarta.servlet.http.Part;
 
 @WebServlet("/event")
 @MultipartConfig(
-    fileSizeThreshold = 1024 * 1024 * 2,  // 2MB
-    maxFileSize = 1024 * 1024 * 10,       // 10MB
-    maxRequestSize = 1024 * 1024 * 50     // 50MB
+    fileSizeThreshold = 1024 * 1024 * 2,   // 2MB
+    maxFileSize = 1024 * 1024 * 10,        // 10MB
+    maxRequestSize = 1024 * 1024 * 50      // 50MB
 )
 public class event extends HttpServlet {
+
     private static final long serialVersionUID = 1L;
 
-    private static final String URL = "jdbc:mysql://localhost:3306/campusconnect?useSSL=false";
-    private static final String USER = "root";
-    private static final String PASS = "Rithika@14";
+    private static final String DB_URL =
+        "jdbc:mysql://localhost:3306/demo2?useSSL=false&allowPublicKeyRetrieval=true";
+    private static final String DB_USER = "root";
+    private static final String DB_PASS = "25swathi14";
 
     private static final String UPLOAD_DIR = "uploads/rulebooks";
 
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         request.setCharacterEncoding("UTF-8");
 
+        // 🔹 Get form values
         String eventName = request.getParameter("evt_name");
         String eventDate = request.getParameter("evt_date");
-        String deptIdStr = request.getParameter("dept");
+        String deptStr   = request.getParameter("dept");
+
         int deptId = 0;
-        if (deptIdStr != null && !deptIdStr.isEmpty()) {
-            deptId = Integer.parseInt(deptIdStr);
+        if(deptStr != null && !deptStr.isEmpty()) {
+            deptId = Integer.parseInt(deptStr); // integer value to match DB
         }
 
+        // 🔹 File upload
         Part filePart = request.getPart("filename");
-        String fileName = "";
         String fileUrl = "";
 
         if (filePart != null && filePart.getSize() > 0) {
-            fileName = getFileName(filePart);
+
+            String fileName = extractFileName(filePart);
+
             String appPath = request.getServletContext().getRealPath("");
             String uploadPath = appPath + File.separator + UPLOAD_DIR;
 
-            File uploadFolder = new File(uploadPath);
-            if (!uploadFolder.exists()) {
-                uploadFolder.mkdirs();
+            File uploadDir = new File(uploadPath);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
             }
 
-            String fullFilePath = uploadPath + File.separator + fileName;
-            filePart.write(fullFilePath);
+            String fullPath = uploadPath + File.separator + fileName;
+            filePart.write(fullPath);
 
-            // Store relative URL (path) for the rulebook in DB
             fileUrl = UPLOAD_DIR + "/" + fileName;
         }
 
+        // 🔹 DB INSERT
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASS)) {
-                // Insert event details with rulebook URL
-                String sql = "INSERT INTO event (event_name, event_date, department, rulebook) VALUES (?, ?, ?, ?)";
-                try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                    ps.setString(1, eventName);
-                    ps.setString(2, eventDate);
-                    ps.setInt(3, deptId);
-                    ps.setString(4, fileUrl);
-                }
+
+            Connection conn = DriverManager.getConnection(
+                DB_URL, DB_USER, DB_PASS
+            );
+
+            String sql =
+              "INSERT INTO `event` (event_name, event_date, dept_id, rulebook) " +
+              "VALUES (?, ?, ?, ?)";
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, eventName);
+            ps.setString(2, eventDate);
+            ps.setInt(3, deptId);      // ✅ integer
+            ps.setString(4, fileUrl);
+
+            int rows = ps.executeUpdate();   // ⭐ VERY IMPORTANT ⭐
+
+            ps.close();
+            conn.close();
+
+            if (rows > 0) {
+                response.sendRedirect("home.html?menu=event&status=success");
+            } else {
+                response.getWriter().println("Insert Failed");
             }
-            response.sendRedirect("admin_panel/home.html?menu=event");
+
         } catch (Exception e) {
             e.printStackTrace();
             response.getWriter().println("Error: " + e.getMessage());
         }
     }
 
-    private String getFileName(Part part) {
+    // 🔹 File name extract helper
+    private String extractFileName(Part part) {
         String contentDisp = part.getHeader("content-disposition");
-        String[] tokens = contentDisp.split(";");
-        for (String token : tokens) {
+        for (String token : contentDisp.split(";")) {
             if (token.trim().startsWith("filename")) {
-                return token.substring(token.indexOf('=') + 1).trim().replace("\"", "");
+                return token.substring(token.indexOf("=") + 2,
+                        token.length() - 1);
             }
         }
         return "";
