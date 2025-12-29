@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -19,16 +20,16 @@
 </h2>
 <div id="menu">
 	<div >
-		<a href="add.html?menu=Event">Event</a>
+		<a href="home.html?menu=Event">Event</a>
 	</div>
 	<div>
-		<a href="add.html?menu=Exam">Exam</a>
+		<a href="home.html?menu=Exam">Exam</a>
 	</div>
 	<div >
-		<a href="add.html?menu=Faculty">Faculty</a>
+		<a href="home.html?menu=Faculty">Faculty</a>
 	</div>
 	<div >
-		<a href="add.html?menu=Fees">Fees</a>
+		<a href="home.html?menu=Fees">Fees</a>
 	</div>
 </div>
 <div id="page-content">
@@ -36,15 +37,19 @@
   
 
 <form method="post" action="faculty">
+  <div>
+    <label>First Name</label><br>
+    <input type="text" name="fname" required>
+  </div><br>
 
   <div>
-    <label>Name</label><br>
-    <input type="text" name="name" required>
+    <label>Last Name</label><br>
+    <input type="text" name="lname" required>
   </div><br>
 
   <div>
     <label>Designation</label><br>
-    <select name="designation" required>
+    <select name="desig" required>
       <option value="">Select</option>
       <option value="HOD">HOD</option>
       <option value="Associate Professor">Associate Professor</option>
@@ -54,12 +59,38 @@
 
   <div>
     <label>Department</label><br>
-    <select name="department" required>
-      <option value="">Select</option>
-      <option value="BCA">BCA</option>
-      <option value="Languages">Languages</option>
-      <option value="BA Tamil">BA Tamil</option>
-      <option value="MA English">MA English</option>
+    <select name="dept" required>
+      
+      <option value="1">BCA</option>
+      <option value="2">Languages</option>
+      <option value="3">BA Tamil</option>
+      <option value="4">MA English</option>
+      <option value="5">BA English</option>
+      <option value="6">B.Com general A</option>
+      <option value="7">B.Com general B</option>
+      <option value="8">B.Com A&F</option>
+      <option value="9">B.Com CA</option>
+      <option value="10">B.Com Honours</option>
+      <option value="11">M.Com General</option>
+      <option value="12">B.Com CS</option>
+      <option value="13">BBA</option>
+      <option value="14">MA HRM</option>
+      <option value="15">B.SC IT</option>
+      <option value="16">M.SC IT</option>
+      <option value="17">B.SC CS</option>
+      <option value="18">BA Corporate Economics</option>
+      <option value="19">Viscom</option>
+      <option value="20">B.SC Psychology</option>
+      <option value="21">B.SC Data Science</option>
+      <option value="22">MA Communication</option>
+      <option value="23">B.SC Maths</option>
+      <option value="24">M.SC Maths</option>
+      <option value="25">B.SC Physics</option>
+      <option value="26">B.SC Chemistry</option>
+      <option value="27">B.SC Plant Biology</option>
+      <option value="28">B.SC Home Science</option>
+      <option value="29">BA History</option>
+      <option value="30">B.SC Advanced Zoology</option>
     </select>
   </div><br>
 
