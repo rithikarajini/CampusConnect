@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>CampusConnect Chatbot</title>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+<style>
+html,body{
+  margin:0; height:100%;
+  font-family:Segoe UI;
+  background:#f0f0f0;
+}
+#chat-container{
+  width:100vw;height:100vh;
+  display:flex;flex-direction:column;
+  background:#fff;
+}
+#chat-header{
+  height:80px;border-bottom:1px solid #aaa;
+  display:flex;align-items:center;justify-content:center;
+}
+.brand-text{font-size:50px;font-weight:900}
+.campus{color:#205B6F}
+.connect{color:#8cc63f}
+
+#chat-window{
+  flex:1;padding:20px;overflow-y:auto;
+  background:#eaeaea;
+}
+.message{display:flex;margin-bottom:15px}
+.user{justify-content:flex-end}
+.bot{justify-content:flex-start}
+.message-content{
+  max-width:300px;padding:12px 18px;
+  border-radius:20px;
+  word-break:break-word;
+}
+.user .message-content{background:#757575;color:#fff}
+.bot .message-content{background:#c0c0c0}
+
+#input-area{
+  display:flex;padding:10px;position:relative
+}
+#user-input{
+  flex:1;padding:14px 110px 14px 20px;
+  border-radius:30px;border:1px solid #999;
+  font-size:16px;
+  resize:none;
+}
+#voice-btn,#send-btn{
+  position:absolute;width:40px;height:40px;
+  border-radius:50%;border:none;
+  background:#757575;color:#fff;
+  cursor:pointer;
+}
+#voice-btn{right:70px}
+#send-btn{right:20px}
+
+#voice-modal{
+  position:fixed;top:0;left:0;
+  width:100vw;height:100vh;
+  display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.2);
+}
+#voice-modal-content{
+  background:#fff;padding:30px 50px;
+  border-radius:20px;text-align:center;
+}
+</style>
+</head>
+
+<body>
+
+<div id="chat-container">
+
+<header id="chat-header">
+  <span class="brand-text">
+    <span class="campus">Campus</span><span class="connect">Connect</span>
+  </span>
+</header>
+
+<div id="chat-window"></div>
+
+<form id="input-area">
+  <textarea id="user-input" placeholder="Say something..."></textarea>
+  <button id="voice-btn" type="button"><i class="fas fa-microphone"></i></button>
+  <button id="send-btn" type="submit"><i class="fas fa-paper-plane"></i></button>
+</form>
+
+</div>
+
+<div id="voice-modal">
+  <div id="voice-modal-content">
+    <h2>🎤 Listening...</h2>
+    <p>Speak now</p>
+  </div>
+</div>
+
+<script>
+const chatWindow = document.getElementById("chat-window");
+const userInput = document.getElementById("user-input");
+const voiceBtn = document.getElementById("voice-btn");
+const voiceModal = document.getElementById("voice-modal");
+
+/* ---------- ADD MESSAGE ---------- */
+function addMessage(text, sender){
+  const div=document.createElement("div");
+  div.className="message "+sender;
+  div.innerHTML=`<div class="message-content">${text}</div>`;
+  chatWindow.appendChild(div);
+  chatWindow.scrollTop=chatWindow.scrollHeight;
+}
+
+/* ---------- TEXT TO SPEECH ---------- */
+function speak(text){
+  const speech=new SpeechSynthesisUtterance(text);
+  speech.lang="en-IN";
+  speech.rate=1;
+  window.speechSynthesis.speak(speech);
+}
+
+/* ---------- SEND MESSAGE (TEXT INPUT) ---------- */
+async function sendTextMessage(text){
+  addMessage(text,"user");
+
+  let reply="";
+  try{
+    const res = await fetch("ChatServlet",{
+      method:"POST",
+      headers:{"Content-Type":"application/x-www-form-urlencoded"},
+      body:"message="+encodeURIComponent(text)
+    });
+    reply=await res.text();
+  }catch(e){
+    reply="Server error";
+  }
+
+  addMessage(reply, "bot");
+
+  if (useVoice) {   // only speak if it came from mic
+    speak(reply);
+  }
+
+  useVoice = false; // reset flag after each message
+
+}
+
+/* ---------- SEND MESSAGE (VOICE INPUT) ---------- */
+async function sendVoiceMessage(text){
+  addMessage(text,"user");
+
+  let reply="";
+  try{
+    const res = await fetch("VoiceServlet",{
+      method:"POST",
+      headers:{"Content-Type":"application/x-www-form-urlencoded"},
+      body:"message="+encodeURIComponent(text)
+    });
+    reply=await res.text();
+  }catch(e){
+    reply="Server error";
+  }
+
+  addMessage(reply,"bot");
+  speak(reply);
+  userInput.focus();
+}
+
+/* ---------- FORM SUBMIT ---------- */
+document.getElementById("input-area").addEventListener("submit",e=>{
+  e.preventDefault();
+  const text=userInput.value.trim();
+  if(!text) return;
+  userInput.value="";
+  sendTextMessage(text); // Text → ChatServlet
+});
+
+/* ---------- SPEECH TO TEXT ---------- */
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if(!SpeechRecognition){
+  alert("Speech Recognition not supported in this browser. Use Chrome Desktop.");
+}
+
+const recognition = new SpeechRecognition();
+recognition.lang = "en-IN";
+recognition.interimResults = false;
+
+voiceBtn.onclick = () => {
+  voiceModal.style.display = "flex";
+  window.speechSynthesis.cancel(); // stop TTS before listening
+  recognition.start();
+};
+
+recognition.onresult = (e) => {
+  const spokenText = e.results[0][0].transcript;
+  voiceModal.style.display = "none";
+  sendVoiceMessage(spokenText); // Voice → VoiceServlet
+};
+
+recognition.onerror = () => {
+  voiceModal.style.display = "none";
+  alert("Voice recognition error. Try again.");
+};
+
+recognition.onend = () => {
+  voiceModal.style.display = "none";
+};
+
+/* ---------- AUTO-FOCUS ON PAGE LOAD ---------- */
+window.onload = () => {
+  userInput.focus();
+};
+
+/* ---------- ENTER TO SEND, SHIFT+ENTER NEWLINE ---------- */
+userInput.addEventListener("keydown", e => {
+  if(e.key === "Enter" && !e.shiftKey){
+    e.preventDefault();
+    document.getElementById("send-btn").click();
+  }
+});
+</script>
+
+</body>
+</html>
