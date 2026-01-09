@@ -1,18 +1,5 @@
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.text.PDFTextStripper;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;
@@ -74,54 +61,78 @@ public class DButil extends HttpServlet {
     /* ===========================================================
                         EXAMS
        =========================================================== */
+
     public static List<Exam> searchExams(
-            String subject, String dept, String examType, int semester) {
+            String subject,
+            int deptId,
+            String examType,
+            int semester,
+            int classYear
+    ) {
 
         List<Exam> list = new ArrayList<>();
 
-        String sql =
-            "SELECT e.course_code, e.course_name, e.exam_date, e.classes, "
-          + "e.semester, e.exam_type, d.dept_name "
-          + "FROM exam e "
-          + "JOIN dept d ON e.dept_id = d.dept_id "
-          + "WHERE ( ? = -1 OR e.semester = ? ) "                // semester
-          + "AND ( ? = 'ANY' OR e.exam_type LIKE ? ) "           // exam type
-          + "AND ( ? = 'ANY' "
-          + "       OR e.course_name LIKE ? "
-          + "       OR e.course_code LIKE ? ) "                  // subject
-          + "AND ( ? = 'ANY' OR d.dept_name LIKE ? ) "           // department
-          + "ORDER BY e.exam_date";
+        StringBuilder sql = new StringBuilder(
+        	    "SELECT e.*, d.dept_name " +
+        	    "FROM exam e JOIN dept d ON e.dept_id = d.dept_id " +
+        	    "WHERE e.dept_id = ? " +
+        	    "AND e.exam_type = ? " +
+        	    "AND ( ? IS NULL OR LOWER(e.course_name) LIKE ? )"
+        	);
 
-        try (Connection c = getConn(); PreparedStatement ps = c.prepareStatement(sql)) {
+        	if (semester != -1) {
+        	    sql.append(" AND e.semester = ?");
+        	}
 
-            // Semester
-            ps.setInt(1, semester);
-            ps.setInt(2, semester);
+        	if (classYear != -1) {
+        	    sql.append(" AND e.classes = ?");
+        	}
 
-            // Exam Type
-            ps.setString(3, examType);
-            ps.setString(4, "%" + examType + "%");
+           
 
-            // Subject
-            ps.setString(5, subject);
-            ps.setString(6, "%" + subject + "%");
-            ps.setString(7, "%" + subject + "%");
+        try (Connection con = getConn();
+             PreparedStatement ps = con.prepareStatement(sql.toString())) {
 
-            // Department
-            ps.setString(8, dept);
-            ps.setString(9, "%" + dept + "%");
+        	int idx = 1;
+
+        	// dept
+        	ps.setInt(idx++, deptId);
+
+        	// exam type
+        	ps.setString(idx++, examType);
+
+        	// subject (MUST come next)
+        	if (subject == null) {
+        	    ps.setNull(idx++, Types.VARCHAR);
+        	    ps.setNull(idx++, Types.VARCHAR);
+        	} else {
+        	    ps.setString(idx++, subject);
+        	    ps.setString(idx++, "%" + subject.toLowerCase() + "%");
+        	}
+
+        	// semester
+        	if (semester != -1) {
+        	    ps.setInt(idx++, semester);
+        	}
+
+        	// class year
+        	if (classYear != -1) {
+        	    ps.setInt(idx++, classYear);
+        	}
+
+
 
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
                 Exam e = new Exam();
-                e.courseCode = rs.getString("course_code");
                 e.courseName = rs.getString("course_name");
-                e.examDate = rs.getDate("exam_date");
-                e.classes = rs.getInt("classes");
-                e.semester = rs.getInt("semester");
                 e.examType = rs.getString("exam_type");
+                e.semester = rs.getInt("semester");
+                e.classes = rs.getInt("classes");
+                e.examDate = rs.getDate("exam_date");
                 e.deptName = rs.getString("dept_name");
+                e.courseCode = rs.getString("course_code");
                 list.add(e);
             }
 
@@ -131,39 +142,189 @@ public class DButil extends HttpServlet {
 
         return list;
     }
-    public static class Exam { public String courseCode;
-							    public String courseName;
-							    public Date examDate;
-							    public int classes;
-							    public int semester;
-							    public String examType;
-							    public String deptName; 
-							  }
+
+    /* ===================== DATE BASED SEARCH ===================== */
+    public static List<Exam> searchExamsForChatbot(
+            Date examDate,
+            Integer deptId,
+            Integer classYear,
+            String examType
+    ) {
+
+        List<Exam> list = new ArrayList<>();
+
+        StringBuilder sql = new StringBuilder(
+            "SELECT e.course_code, e.course_name, e.exam_date, e.classes, " +
+            "e.semester, e.exam_type, d.dept_name " +
+            "FROM exam e " +
+            "JOIN dept d ON e.dept_id = d.dept_id " +
+            "WHERE e.exam_date = ? AND e.dept_id = ? AND e.classes = ? "
+        );
+
+        if (examType != null)
+            sql.append("AND e.exam_type = ? ");
+
+        sql.append("ORDER BY e.course_name");
+
+        try (Connection c = getConn();
+             PreparedStatement ps = c.prepareStatement(sql.toString())) {
+
+            int i = 1;
+            ps.setDate(i++, examDate);
+            ps.setInt(i++, deptId);
+            ps.setInt(i++, classYear);
+
+            if (examType != null)
+                ps.setString(i++, normalizeExamType(examType));
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapExam(rs));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    /* ===================== COURSE CODE SEARCH ===================== */
+    public static List<Exam> searchCourseCodesBySubjectAndDept(
+            String subject,
+            Integer deptId
+    ) {
+
+        List<Exam> list = new ArrayList<>();
+
+        String sql =
+            "SELECT DISTINCT e.course_code, e.course_name, d.dept_name " +
+            "FROM exam e " +
+            "JOIN dept d ON e.dept_id = d.dept_id " +
+            "WHERE e.dept_id = ? " +
+            "AND (LOWER(e.course_name) LIKE ? OR LOWER(e.course_code) LIKE ?) " +
+            "ORDER BY e.course_name";
+
+        try (Connection c = getConn();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            String like = "%" + subject.toLowerCase() + "%";
+
+            ps.setInt(1, deptId);
+            ps.setString(2, like);
+            ps.setString(3, like);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Exam e = new Exam();
+                e.courseCode = rs.getString("course_code");
+                e.courseName = rs.getString("course_name");
+                e.deptName = rs.getString("dept_name");
+                list.add(e);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    /* ===================== DEPARTMENT LOOKUP ===================== */
+    public static Integer getDeptIdByName(String deptFromRasa) {
+
+        if (deptFromRasa == null) return null;
+
+        String norm = deptFromRasa.toLowerCase().replaceAll("[^a-z]", "");
+
+        String sql =
+            "SELECT dept_id FROM dept " +
+            "WHERE LOWER(REPLACE(REPLACE(REPLACE(dept_name,'.',''),' ',''),'-','')) LIKE ?";
+
+        try (Connection c = getConn();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setString(1, "%" + norm + "%");
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next())
+                return rs.getInt("dept_id");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /* ===================== NORMALIZER ===================== */
+    private static String normalizeExamType(String raw) {
+
+        if (raw == null) return null;
+
+        raw = raw.toLowerCase().replaceAll("\\s+", "");
+
+        if (raw.contains("cia1")) return "CIA-1";
+        if (raw.contains("cia2")) return "CIA-2";
+        if (raw.contains("semester")) return "SEMESTER";
+
+        return raw.toUpperCase();
+    }
+
+    /* ===================== MAPPER ===================== */
+    private static Exam mapExam(ResultSet rs) throws SQLException {
+
+        Exam e = new Exam();
+        e.courseCode = rs.getString("course_code");
+        e.courseName = rs.getString("course_name");
+        e.examDate   = rs.getDate("exam_date");
+        e.classes    = rs.getInt("classes");
+        e.semester   = rs.getInt("semester");
+        e.examType   = rs.getString("exam_type");
+        e.deptName   = rs.getString("dept_name");
+        return e;
+    }
+
+    /* ===================== MODEL ===================== */
+    public static class Exam {
+        public String courseCode;
+        public String courseName;
+        public Date examDate;
+        public int classes;
+        public int semester;
+        public String examType;
+        public String deptName;
+    }
+
 
     /* ===========================================================
                         FEES
        =========================================================== */
     public static List<Fee> searchFees(int years, int semester) {
-
-        // If user did NOT specify year (ex: -1), use current year
-        if (years == -1) {
-            years = java.time.LocalDate.now().getYear();
-        }
+    	
+        boolean hasSemester = semester != -1;
 
         List<Fee> list = new ArrayList<>();
 
-        String sql =
-            "SELECT amount, semester, year, last_date " +
-            "FROM fees " +
-            "WHERE year = ? " +
-            "OR (semester = ? OR ? = -1)";
+        StringBuilder sql = new StringBuilder(
+            "SELECT amount, semester, year, last_date FROM fees WHERE year = ?"
+        );
 
-        try (Connection c = getConn(); PreparedStatement ps = c.prepareStatement(sql)) {
+        if (hasSemester) {
+            sql.append(" AND semester = ?");
+        }
 
-            ps.setInt(1, years);        // final year (either user year or current year)
+        try (Connection c = getConn();
+             PreparedStatement ps = c.prepareStatement(sql.toString())) {
 
-            ps.setInt(2, semester);     // semester filter
-            ps.setInt(3, semester);     // used only if NO semester filter
+            int index = 1;
+
+            // Always bind year
+            ps.setInt(index++, years);
+
+            if (hasSemester) {
+                ps.setInt(index++, semester);
+            }
 
             ResultSet rs = ps.executeQuery();
 
@@ -176,12 +337,13 @@ public class DButil extends HttpServlet {
                 list.add(f);
             }
 
-        } catch (Exception e) { 
-            e.printStackTrace(); 
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return list;
     }
+
 
     public static class Fee {
         public int amount;
@@ -262,137 +424,6 @@ public class DButil extends HttpServlet {
         public String designation;
         public String department;
     }
-
-
-    /* ===========================================================
-                     SERVLET API HANDLER
-       =========================================================== */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws IOException { handleRequest(request, response); }
-
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws IOException { handleRequest(request, response); }
-
-    private void handleRequest(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
-
-        response.setContentType("application/json");
-        PrintWriter out = response.getWriter();
-
-        String action = request.getParameter("action");
-        JSONObject result = new JSONObject();
-
-        try {
-            switch (action) {
-
-                /* ---------- EVENT ---------- */
-        
-            case "findEvent":
-            	 String ev = request.getParameter("name");
-                 EventMeta em = findEvent(ev);
-
-                 if (em != null) {
-                     result.put("eventName", em.eventName);
-                     result.put("eventDate", em.eventDate.toString());
-                     result.put("deptName", em.deptName);
-
-                     String rulebookText = "";
-                     if (em.rulebook != null && !em.rulebook.isEmpty()) {
-                         String pdfRelative = "/files/" + em.rulebook;
-                         String pdfAbsolute = getServletContext().getRealPath(pdfRelative);
-                         File pdfFile = new File(pdfAbsolute);
-                         if (pdfFile.exists()) {
-                             try (PDDocument document = Loader.loadPDF(pdfFile)) {
-                                 PDFTextStripper stripper = new PDFTextStripper();
-                                 rulebookText = stripper.getText(document);
-                             } catch (IOException ex) {
-                                 rulebookText = "Error reading PDF: " + ex.getMessage();
-                             }
-                         } else {
-                             rulebookText = "Rulebook PDF not found: " + pdfAbsolute;
-                         }
-                     }
-                     result.put("rulebookText", rulebookText);
-                 } else {
-                     result.put("error", "Event not found");
-                 }
-                break;
-
-
-                /* ---------- EXAMS ---------- */
-                case "searchExams":
-                    String subject = request.getParameter("subject");
-                    String dept = request.getParameter("dept");
-                    String examType = request.getParameter("examType");
-                    int sem = Integer.parseInt(request.getParameter("semester"));
-
-                    List<Exam> exams = searchExams(subject, dept, examType, sem);
-                    JSONArray examArr = new JSONArray();
-
-                    for (Exam e : exams) {
-                        JSONObject o = new JSONObject();
-                        o.put("courseCode", e.courseCode);
-                        o.put("courseName", e.courseName);
-                        o.put("examDate", e.examDate.toString());
-                        o.put("classes", e.classes);
-                        o.put("semester", e.semester);
-                        o.put("examType", e.examType);
-                        o.put("deptName", e.deptName);
-                        examArr.put(o);
-                    }
-
-                    result.put("exams", examArr);
-                    break;
-
-                /* ---------- FEES ---------- */
-                case "searchFees":
-                    int year = Integer.parseInt(request.getParameter("year"));
-                    int semester = Integer.parseInt(request.getParameter("semester"));
-
-                    List<Fee> fees = searchFees(year, semester);
-                    JSONArray feeArr = new JSONArray();
-
-                    for (Fee f : fees) {
-                        JSONObject o = new JSONObject();
-                        o.put("amount", f.amount);
-                        o.put("semester", f.semester);
-                        o.put("year", f.years);
-                        o.put("lastDate", f.lastDate.toString());
-                        feeArr.put(o);
-                    }
-
-                    result.put("fees", feeArr);
-                    break;
-
-                /* ---------- FACULTY ---------- */
-                case "getFaculty":
-                    String key = request.getParameter("keyword");
-                    List<Faculty> fac = getFaculty(key);
-
-                    JSONArray facArr = new JSONArray();
-                    for (Faculty f : fac) {
-                        JSONObject o = new JSONObject();
-                        o.put("firstname", f.firstname);
-                        o.put("lastname",f.lastname);
-                        o.put("designation", f.designation);
-                        o.put("department", f.department);
-                        facArr.put(o);
-                    }
-
-                    result.put("faculty", facArr);
-                    break;
-
-                default:
-                    result.put("error", "Invalid action");
-            }
-
-            out.print(result.toString());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            out.print("{\"error\":\"" + e.getMessage() + "\"}");
-        }
-    }
 }
+
+   
