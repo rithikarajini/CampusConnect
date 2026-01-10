@@ -1,61 +1,72 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>CampusConnect - Exam</title>
-
-  <!-- Icons -->
-  <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-  <!-- Styles -->
-  <link rel="stylesheet" href="header.css">
-  <link rel="stylesheet" href="add.css">
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="header.css"><link rel="stylesheet" href="add.css">
+<meta charset="UTF-8">
+<title>CampusConnect</title>
 </head>
-
 <body>
 
+<div >
+  <img src="clogo.png"style="width: 130px; height: auto; position: fixed; top: 10px; left: 0;" >
+</div>
+<h2 id="title">
+  <span class="dark-green">Campus</span> 
+  <span class="light-green">Connect</span>
+</h2>
+<div id="menu">
+	<div>
+		<a href="home.html?menu=Event">Event</a>
+	</div>
+	<div>
+		<a href="home.html?menu=Exam">Exam</a>
+	</div>
+	<div >
+		<a href="home.html?menu=Faculty">Faculty</a>
+	</div>
+	<div>
+		<a href="home.html?menu=Fees">Fees</a>
+	</div>
+</div>
 <div id="page-content">
-  <h2>Exam Details</h2>
-
-  <form id="ExamForm" method="post" action="exam">
-
+  <div id="name">EXAM</div>
+  
+  <form id="Examform" method="post" action="submitExam">
     <div>
-      <p>Course Code</p>
-      <input type="text" name="course_code" required>
+      <p id="code">Course Code</p>
+      <input type="text" name="code" required>
     </div>
-
     <div>
-      <p>Course Name</p>
-      <input type="text" name="course_name" required>
+      <p id="cname">Course Name</p>
+      <input type="text" name="cname" required>
     </div>
-
     <div>
-      <p>Exam Date</p>
-      <input type="date" name="exam_date" required>
+      <p id="date">Exam Date</p>
+      <input type="date" name="evt_date" required>
     </div>
-
-    <div>
-      <p>Class</p>
-      <select name="class" required>
-        <option value="">Select Class</option>
+     <div>
+      <p id="class">Class</p>
+      	 <select name="class">
+      <option valule=""></option>
         <option value="1st year">I</option>
         <option value="2nd year">II</option>
         <option value="3rd year">III</option>
-      </select>
+        </select>
     </div>
-
     <div>
-      <p>Department</p>
-      <select name="dept_id" required>
-        <option value="">Select Department</option>
+      <p id="dept">Department</p>
+      <select name="dept">
+      <option valule=""></option>
         <option value="1">BCA</option>
         <option value="2">Languages</option>
         <option value="3">BA Tamil</option>
         <option value="4">MA English</option>
         <option value="5">BA English</option>
-        <option value="6">B.Com General A</option>
-        <option value="7">B.Com General B</option>
+        <option value="6">B.Com general A</option>
+        <option value="7">B.Com general B</option>
         <option value="8">B.Com A&F</option>
         <option value="9">B.Com CA</option>
         <option value="10">B.Com Honours</option>
@@ -63,59 +74,28 @@
         <option value="12">B.Com CS</option>
         <option value="13">BBA</option>
         <option value="14">MA HRM</option>
-        <option value="15">B.Sc IT</option>
-        <option value="16">M.Sc IT</option>
-        <option value="17">B.Sc CS</option>
+        <option value="15">B.SC IT</option>
+        <option value="16">M.SC IT</option>
+        <option value="17">B.SC CS</option>
         <option value="18">BA Corporate Economics</option>
         <option value="19">Viscom</option>
-        <option value="20">B.Sc Psychology</option>
-        <option value="21">B.Sc Data Science</option>
+        <option value="20">B.SC Psychology</option>
+        <option value="21">B.SC Data Science</option>
         <option value="22">MA Communication</option>
-        <option value="23">B.Sc Maths</option>
-        <option value="24">M.Sc Maths</option>
-        <option value="25">B.Sc Physics</option>
-        <option value="26">B.Sc Chemistry</option>
-        <option value="27">B.Sc Plant Biology</option>
-        <option value="28">B.Sc Home Science</option>
+        <option value="23">B.SC Maths</option>
+        <option value="24">M.SC Maths</option>
+        <option value="25">B.SC Physics</option>
+        <option value="26">B.SC Chemistry</option>
+        <option value="27">B.SC Plant Biology</option>
+        <option value="28">B.SC Home Science</option>
         <option value="29">BA History</option>
-        <option value="30">B.Sc Advanced Zoology</option>
+        <option value="30">B.SC Advanced Zoology</option>
       </select>
     </div>
-
-    <div>
-      <p>Exam Type</p>
-      <select name="exam_type" required>
-        <option value="">Select Exam Type</option>
-        <option value="cia1">CIA 1</option>
-        <option value="cia2">CIA 2</option>
-        <option value="semester">Semester</option>
-        <option value="arrear">Arrear</option>
-      </select>
-    </div>
-     <div>
-      <label>Semester</label><br>
-      <select name="semester" required>
-        <option value="">Select</option>
-        <option value="1">I</option>
-        <option value="2">II</option>
-        <option value="3">III</option>
-        <option value="4">IV</option>
-        <option value="5">V</option>
-        <option value="6">VI</option>
-      </select>
-    </div>
-    
-
     <div>
       <input type="submit" value="Submit">
     </div>
-
-    <div id="success" style="display:none;">
-      Exam added successfully!
-    </div>
-
   </form>
 </div>
-
 </body>
 </html>
