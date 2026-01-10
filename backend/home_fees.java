@@ -58,7 +58,6 @@ public class home_fees extends HttpServlet {
                 ResultSet rs = stmt.executeQuery("SELECT fees_id, amount, last_date, semester, year FROM fees ORDER BY fees_id");
 
                 out.println("<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css'>");
-                out.println("<div id='table-container'>");
                 out.println("<table>");
                 out.println("<tr><th>#</th><th>Amount</th><th>Last Date</th><th>Semester</th><th>Year</th><th>Actions</th></tr>");
                 int i = 1;
