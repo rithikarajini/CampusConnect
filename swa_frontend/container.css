@@ -1,0 +1,123 @@
+@charset "UTF-8";
+
+/* =========================
+   BODY
+   ========================= */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Satoshi', 'DM Serif Display', sans-serif;
+  background: #ccd6b4;
+  height: 100vh;        /* full viewport height */
+  overflow: hidden;     /* remove all page scroll */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* align container below menu */
+  padding-top: 140px;   /* space for menu/header */
+}
+
+/* =========================
+   MAIN WHITE CARD (CENTERED)
+   ========================= */
+#details {
+  width: 900px;
+  background: #ffffff;
+  padding: 5px;
+  border-radius: 15px;
+  box-shadow: 0px 60px 210px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================
+   TITLE
+   ========================= */
+#name h2 {
+  text-align: center;
+  font-size: 50px;
+  color: #006a6a;
+  margin-bottom: 5px;
+  font-family: 'DM Serif Display', serif;
+  font-weight: 900;
+}
+
+/* =========================
+   TABLE
+   ========================= */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: auto;
+  font-family: Arial, sans-serif;
+}
+
+table, th, td {
+  border: 1px solid #ccc;
+}
+
+th, td {
+  padding: 14px 28px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+th {
+  background-color: #bfe0b1;
+  font-weight: bold;
+}
+#table-container {
+  max-height: 360px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+
+/* =========================
+   ACTION ICONS
+   ========================= */
+a.action-edit {
+  color: #007bff;
+  padding: 6px;
+  border-radius: 4px;
+  text-decoration: none;
+}
+a.action-edit:hover {
+  background: #e6f0ff;
+}
+
+a.action-delete {
+  color: #d9534f;
+  padding: 6px;
+  border-radius: 4px;
+  text-decoration: none;
+}
+a.action-delete:hover {
+  background: #ffeaea;
+}
+
+/* =========================
+   ADD BUTTON
+   ========================= */
+#btn {
+  text-align: center;
+  margin-top: 25px;
+}
+
+#btn input[type="button"],
+#btn button {
+  background-color: #006a6a;
+  color: #fff;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#btn input[type="button"]:hover,
+#btn button:hover {
+  background-color: #3db846;
+  transform: scale(1.05);
+}
