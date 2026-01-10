@@ -2,18 +2,18 @@
 
 /* =========================
    MAIN WHITE CARD
-   (EVENT & FEES SAME)
    ========================= */
 #details {
-  position: relative;          /* 🔥 fixed REMOVE */
+  position: relative;          
   width: 900px;
-  margin: 200px auto;
+  margin: 50px auto;  /* Adjusted margin for top spacing */
   background: #ffffff;
   padding: 25px;
   border-radius: 15px;
   box-shadow: 0 6px 20px rgba(0,0,0,0.15);
   display: flex;
   flex-direction: column;
+  overflow: visible;   /* Remove scroll inside container */
 }
 
 /* =========================
@@ -27,99 +27,3 @@
   font-family: 'DM Serif Display', serif;
 }
 
-/* =========================
-   TABLE CONTAINER
-   (THIS IS THE KEY FIX)
-   ========================= */
-#table-container {
-  background: #ffffff;
-  padding: 15px;
-  border-radius: 10px;
-
-  /* 🔥 SAME AS EVENT PAGE */
-  max-height: 300px;
-  overflow-y: auto;
-  overflow-x: auto;
-
-  box-shadow: inset 0 0 0 transparent;
-}
-
-/* =========================
-   TABLE
-   ========================= */
-table {
-  border-collapse: collapse;
-  width: max-content;
-  min-width: 100%;
-  table-layout: fixed;
-  font-family: Arial, sans-serif;
-}
-
-table,
-th,
-td {
-  border: 1px solid #cfcfcf;
-}
-
-th,
-td {
-  padding: 14px 28px;
-  text-align: center;
-  white-space: nowrap;
-}
-
-/* HEADER */
-th {
-  background-color: #bfe0b1;
-  font-weight: bold;
-  position: sticky;
-  top: 0;
-  z-index: 2;
-}
-
-/* =========================
-   ACTION ICONS
-   ========================= */
-a.action-edit {
-  color: #007bff;
-  padding: 6px;
-  border-radius: 4px;
-}
-a.action-edit:hover {
-  background: #e6f0ff;
-}
-
-a.action-delete {
-  color: #d9534f;
-  padding: 6px;
-  border-radius: 4px;
-}
-a.action-delete:hover {
-  background: #ffeaea;
-}
-
-/* =========================
-   ADD BUTTON
-   ========================= */
-#btn {
-  text-align: center;
-  margin-top: 25px;
-}
-
-#btn input[type="button"],
-#btn button {
-  background-color: #006a6a;
-  color: #fff;
-  border: none;
-  padding: 12px 30px;
-  border-radius: 8px;
-  font-size: 18px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-#btn input[type="button"]:hover,
-#btn button:hover {
-  background-color: #3db846;
-  transform: scale(1.05);
-}
