@@ -1,59 +1,58 @@
-
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>CampusConnect - Fees</title>
 <link rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="header.css">
 <link rel="stylesheet" href="add.css">
-
+<meta charset="UTF-8">
+<title>CampusConnect</title>
 </head>
-<<body class="fees-page">
->
+<body>
 
-<h2>Fees Management</h2>
-  
-
-  <form id="FeeForm" method="post" action="fees">
-
-
-  <!-- ADD FORM -->
-  
-    <div>
-      <label>Amount</label><br>
-      <input type="number" name="amount" required>
-    </div>
-    <div>
-      <label>Last Date</label><br>
-      <input type="date" name="last_date" required>
-    </div>
-    <div>
-      <label>Semester</label><br>
-      <select name="semester" required>
-        <option value="">Select</option>
-        <option value="1">I</option>
-        <option value="2">II</option>
-        <option value="3">III</option>
-        <option value="4">IV</option>
-        <option value="5">V</option>
-        <option value="6">VI</option>
-      </select>
-    </div>
-    <div>
-  <label>Year</label><br>
-  <input type="number" name="year" min="2000" max="2099" required>
+<div>
+  <img src="clogo.png" style="width: 130px; height: auto; position: fixed; top: 10px; left: 0;">
 </div>
-    
-    <div>
-      <input type="submit" value="Submit">
-    </div>
+<h2 id="title">
+  <span class="dark-green">Campus</span> 
+  <span class="light-green">Connect</span>
+</h2>
+<div id="menu">
+  <div><a href="home.html?menu=Event">Event</a></div>
+  <div><a href="home.html?menu=Exam">Exam</a></div>
+  <div><a href="hpme.html?menu=Faculty">Faculty</a></div>
+  <div><a href="home.html?menu=Fees">Fees</a></div>
+</div>
 
-    <div id="success" style="display:none;">
-      
-    </div>
-  </form>
+<div id="page-content">
+  <div id="name">FEES</div>
+  
+  <form id="feeform" method="post" action="fees" enctype="multipart/form-data">
+  <div>
+    <p id="amount">Amount</p>
+    <input type="number" name="amount" required>
+  </div>
+  <div>
+    <p id="last_date">Last Date</p>
+    <input type="date" name="last_date" required>
+  </div>
+  <div>
+    <p id="semester">Semester</p>
+    <select name="semester" required>
+      <option value=""></option>
+      <option value="1">I</option>
+      <option value="2">II</option>
+      <option value="3">III</option>
+      <option value="4">IV</option>
+      <option value="5">V</option>
+      <option value="6">VI</option>
+    </select>
+  </div>
+  
+    <div>
+    <input type="submit" value="Submit">
+  </div>
+</form>
 
 
 
