@@ -218,6 +218,21 @@ html, body {
 </div>
 
 <script>
+let voiceMode = false;
+
+function htmlToSpeechText(html) {
+	  if (!html) return "";
+
+	  return html
+	    .replace(/<br\s*\/?>/gi, ". . ")     // longer pause
+	    .replace(/<hr\s*\/?>/gi, ". . ")   // longer pause
+	    .replace(/<\/b>/gi, ". ")          // pause after bold headings
+	    .replace(/<[^>]*>/g, "")           // remove remaining tags
+	    .replace(/\s+/g, " ")              // normalize spaces
+	    .trim();
+	}
+
+
 const chatWindow = document.getElementById("chat-window");
 const userInput = document.getElementById("user-input");
 const sendButton = document.getElementById("send-btn");
@@ -295,9 +310,14 @@ document.getElementById("input-area").addEventListener("submit", async e => {
   typingDiv.remove();
 
   // SHOW BOT MESSAGE
-  addMessage(responseText, "bot");
+addMessage(responseText, "bot");
 
-  sendButton.disabled = false;
+if (voiceMode) {
+  speak(htmlToSpeechText(responseText));
+}
+
+voiceMode = false;
+sendButton.disabled = false;
 });
 
 /* ---------- ENTER TO SEND ---------- */
@@ -310,13 +330,84 @@ userInput.addEventListener("keydown", e => {
 
 /* ---------- VOICE MODAL ---------- */
 voiceButton.addEventListener("click", () => {
+	voiceMode = true;
+
+
+  if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
+    alert("Speech recognition not supported in this browser");
+    return;
+  }
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = new SpeechRecognition();
+
+  recognition.lang = "en-IN";
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
   voiceModal.style.display = "flex";
 
-  setTimeout(() => {
+  recognition.start();
+
+  recognition.onresult = async event => {
+    const spokenText = event.results[0][0].transcript;
+
     voiceModal.style.display = "none";
-    alert("Voice recording will be added later!");
-  }, 3000);
+
+    // SHOW USER MESSAGE
+    addMessage(spokenText, "user");
+
+    // SHOW TYPING
+    const typingDiv = showTyping();
+
+    let botReply = "";
+    try {
+      const response = await fetch("../VoiceServlet", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "message=" + encodeURIComponent(spokenText)
+      });
+      botReply = await response.text();
+    } catch (e) {
+      botReply = "Sorry, I could not connect to the server.";
+    }
+
+    typingDiv.remove();
+    
+    addMessage(botReply, "bot");
+    speak(htmlToSpeechText(botReply));
+
+    voiceMode = false;
+
+  };
+
+  recognition.onerror = () => {
+	  recognition.stop();
+	  voiceMode = false;
+	  voiceModal.style.display = "none";
+	  alert("Voice recognition failed. Please try again.");
+	};
+
 });
+
+function speak(text) {
+	  if (!window.speechSynthesis || !text) return;
+
+	  if (window.speechSynthesis.speaking) {
+	    window.speechSynthesis.cancel();
+	  }
+
+	  const utterance = new SpeechSynthesisUtterance(text);
+	  utterance.lang = "en-IN";
+	  utterance.rate = 1.25;
+	  utterance.pitch = 1;
+
+	  window.speechSynthesis.speak(utterance);
+	}
+
+
+	
+
 </script>
 </body>
 </html>

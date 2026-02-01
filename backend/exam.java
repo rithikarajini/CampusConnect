@@ -1,6 +1,6 @@
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 
@@ -13,68 +13,80 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebServlet("/exam")
 public class exam extends HttpServlet {
 
-    private static final String URL =
-        "jdbc:mysql://localhost:3306/demo2?useSSL=false&serverTimezone=UTC";
-    private static final String USER = "root";
-    private static final String PASS = "25swathi14";
+    private static final long serialVersionUID = 1L;
 
+    private static final String URL =
+        "jdbc:mysql://localhost:3306/campusconnect?useSSL=false";
+    private static final String USER = "root";
+    private static final String PASS = "Rithika@14";
+
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8");
-        response.setContentType("text/html;charset=UTF-8");
 
-        PrintWriter out = response.getWriter();
-
-        // ✅ Parameters EXACTLY match HTML name=""
+        /* ===== NEW VALUES ===== */
         String courseCode = request.getParameter("course_code");
         String courseName = request.getParameter("course_name");
         String examDate   = request.getParameter("exam_date");
-        String classes    = request.getParameter("class");
-        String deptId     = request.getParameter("dept_id");
+        String classes    = request.getParameter("classes");
+        int deptId        = Integer.parseInt(request.getParameter("dept_id"));
         String semester   = request.getParameter("semester");
         String examType   = request.getParameter("exam_type");
 
-        // ✅ Validation
-        if (courseCode == null || courseCode.trim().isEmpty() ||
-            courseName == null || courseName.trim().isEmpty() ||
-            examDate == null   || examDate.trim().isEmpty()   ||
-            classes == null    || classes.trim().isEmpty()    ||
-            deptId == null     || deptId.trim().isEmpty()     ||
-            semester == null   || semester.trim().isEmpty()   ||
-            examType == null   || examType.trim().isEmpty()) {
+        /* ===== ORIGINAL VALUES (ONLY PRESENT DURING EDIT) ===== */
+        String origCode = request.getParameter("original_course_code");
+        String origDate = request.getParameter("original_exam_date");
+        String origDept = request.getParameter("original_dept_id");
 
-            out.println("All fields are required");
-            return;
-        }
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASS)) {
 
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            /* ================= UPDATE ================= */
+            if (origCode != null && !origCode.isBlank()) {
 
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASS)) {
+                PreparedStatement ps = conn.prepareStatement(
+                    "UPDATE exam SET course_code=?, course_name=?, exam_date=?, classes=?, dept_id=?, exam_type=?, semester=? " +
+                    "WHERE course_code=? AND exam_date=? AND dept_id=?"
+                );
 
-                String sql = "INSERT INTO exam " +
-                        "(course_code, course_name, exam_date, classes, dept_id, semester, exam_type) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?)";
+                ps.setString(1, courseCode);
+                ps.setString(2, courseName);
+                ps.setDate(3, Date.valueOf(examDate));
+                ps.setString(4, classes);
+                ps.setInt(5, deptId);
+                ps.setString(6, examType);
+                ps.setString(7, semester);
 
-                try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                    ps.setString(1, courseCode);
-                    ps.setString(2, courseName);
-                    ps.setString(3, examDate);
-                    ps.setString(4, classes);
-                    ps.setString(5, deptId);
-                    ps.setString(6, semester);
-                    ps.setString(7, examType);
+                ps.setString(8, origCode);
+                ps.setDate(9, Date.valueOf(origDate));
+                ps.setInt(10, Integer.parseInt(origDept));
 
-                    ps.executeUpdate(); // 🔥 IMPORTANT
-                }
+                ps.executeUpdate();
             }
 
-            response.sendRedirect("home.html?menu=Exam");
+            /* ================= INSERT ================= */
+            else {
+                PreparedStatement ps = conn.prepareStatement(
+                    "INSERT INTO exam (course_code, course_name, exam_date, classes, dept_id, exam_type, semester) " +
+                    "VALUES (?,?,?,?,?,?,?)"
+                );
+                ps.setString(1, courseCode);
+                ps.setString(2, courseName);
+                ps.setDate(3, Date.valueOf(examDate));
+                ps.setString(4, classes);
+                ps.setInt(5, deptId);
+                ps.setString(6, examType);
+                ps.setString(7, semester);
+
+                ps.executeUpdate();
+            }
+
+            response.sendRedirect("./admin_panel/home.html?menu=Exam");
 
         } catch (Exception e) {
             e.printStackTrace();
-            out.println("Error: " + e.getMessage());
+            throw new ServletException(e);
         }
     }
 }

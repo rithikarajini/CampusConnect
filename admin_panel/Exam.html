@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -33,89 +34,133 @@
 <div id="page-content">
   <div id="name">EXAM</div>
   
-  <form id="Exanform" method="post" action="/CampusConnect/exam">
+  <form id="Examform" method="post" action="/CampusConnect/exam">
+  <input type="hidden" name="original_course_code">
+<input type="hidden" name="original_exam_date">
+<input type="hidden" name="original_dept_id">
     <div>
       <p id="code">Course Code</p>
-      <input type="text" name="code" required>
+      <input type="text" name="course_code" required>
     </div>
     <div>
       <p id="cname">Course Name</p>
-      <input type="text" name="cname" required>
+      <input type="text" name="course_name" required>
     </div>
     <div>
       <p id="date">Exam Date</p>
-      <input type="date" name="exm_date" required>
+      <input type="date" name="exam_date" required>
     </div>
      <div>
       <p id="class">Class</p>
-      	 <select name="class">
-      <option valule=""></option>
-        <option value="1st year">I</option>
-        <option value="2nd year">II</option>
-        <option value="3rd year">III</option>
-        </select>
-    </div>
-    <div>
-      <p id="dept">Department</p>
-      <select name="dept">
-      <option valule=""></option>
-        <option value="1">BCA</option>
-        <option value="2">Languages</option>
-        <option value="3">BA Tamil</option>
-        <option value="4">MA English</option>
-        <option value="5">BA English</option>
-        <option value="6">B.Com general A</option>
-        <option value="7">B.Com general B</option>
-        <option value="8">B.Com A&F</option>
-        <option value="9">B.Com CA</option>
-        <option value="10">B.Com Honours</option>
-        <option value="11">M.Com General</option>
-        <option value="12">B.Com CS</option>
-        <option value="13">BBA</option>
-        <option value="14">MA HRM</option>
-        <option value="15">B.SC IT</option>
-        <option value="16">M.SC IT</option>
-        <option value="17">B.SC CS</option>
-        <option value="18">BA Corporate Economics</option>
-        <option value="19">Viscom</option>
-        <option value="20">B.SC Psychology</option>
-        <option value="21">B.SC Data Science</option>
-        <option value="22">MA Communication</option>
-        <option value="23">B.SC Maths</option>
-        <option value="24">M.SC Maths</option>
-        <option value="25">B.SC Physics</option>
-        <option value="26">B.SC Chemistry</option>
-        <option value="27">B.SC Plant Biology</option>
-        <option value="28">B.SC Home Science</option>
-        <option value="29">BA History</option>
-        <option value="30">B.SC Advanced Zoology</option>
-      </select>
-    </div>
-      <div>
-      <p id="sem">Semester</p>
-      <select name="sem" required>
+      	 <select name="classes">
       <option value=""></option>
         <option value="1">I</option>
         <option value="2">II</option>
         <option value="3">III</option>
-        <option value="4">IV</option>
+        </select>
+    </div>
+    <div>
+  <p id="dept">Department</p>
+  <select name="dept_id">
+    <option value=""></option>
+    <option value="1">BCA</option>
+    <option value="2">MSc IT</option>
+    <option value="3">BCom General</option>
+    <option value="4">BA Corporate Economics</option>
+    <option value="5">BSc Visual Communication</option>
+    <option value="6">BSc Information Technology</option>
+    <option value="7">BSc Psychology</option>
+    <option value="8">BCom Accounting and Finance</option>
+    <option value="9">BCom Computer Applications</option>
+    <option value="10">BCom Honours</option>
+    <option value="11">BBA</option>
+    <option value="12">MA Communication</option>
+    <option value="13">MA Human Resource Management</option>
+    <option value="14">MA English</option>
+    <option value="15">MA International Studies</option>
+    <option value="16">MSc Mathematics</option>
+    <option value="17">MSc Physics</option>
+    <option value="18">MSc Chemistry</option>
+    <option value="19">MSc Biotechnology</option>
+    <option value="21">MSc Data Science</option>
+    <option value="22">MCom General</option>
+    <option value="23">BA History</option>
+    <option value="24">BA English</option>
+    <option value="25">BSc Mathematics</option>
+    <option value="26">BSc Physics</option>
+    <option value="27">BSc Chemistry</option>
+    <option value="28">BSc Plant Biology</option>
+    <option value="29">BSc Home Science</option>
+    <option value="30">BSc Computer Science</option>
+    <option value="31">MSc Psychology</option>
+  </select>
+</div>
+ <div>
+      <p id="semester">Semester</p>
+      <select name="semester">
+        <option value=""></option>
+        <option value="1">I</option>
+        <option value="2">II</option>
+        <option value="3">III</option>
+        <option value="4">VI</option>
         <option value="5">V</option>
         <option value="6">VI</option>
       </select>
-	</div>
-	  <div>
-      <p id="exam_type">Type</p>
-      <select name="exam_type" required>
-      <option value=""></option>
-        <option value="cia 1">CIA 1</option>
-        <option value="cia 2">CIA 2</option>
-        <option value="semester">Semester</option>
-      </select>
-	</div>
+ </div>
+ <div>
+      <p id="exam_type">Exam-Type</p>
+      <select name="exam_type">
+          <option value="CIA-1">CIA-1</option>
+        <option value="CIA-2">CIA-2</option>
+        <option value="semester">SEMESTER</option>
+       </select>
+ </div>   
     <div>
       <input type="submit" value="Submit">
     </div>
   </form>
+  
+<script>
+const params = new URLSearchParams(window.location.search);
+
+const courseCode = params.get("course_code");
+const examDate   = params.get("exam_date");
+const deptId     = params.get("dept_id");
+
+if (courseCode && examDate && deptId) {
+  fetch(
+    "../home_exam?" +
+    "course_code=" + encodeURIComponent(courseCode) +
+    "&exam_date=" + encodeURIComponent(examDate) +
+    "&dept_id=" + encodeURIComponent(deptId)
+  )
+    .then(res => {
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    })
+    .then(d => {
+      /* ===== FILL VISIBLE FIELDS ===== */
+      document.querySelector('[name="course_code"]').value = d.course_code;
+      document.querySelector('[name="course_name"]').value = d.course_name;
+      document.querySelector('[name="exam_date"]').value   = d.exam_date;
+      document.querySelector('[name="classes"]').value     = String(d.classes);
+      document.querySelector('[name="dept_id"]').value     = d.dept_id;
+      document.querySelector('[name="exam_type"]').value   = d.exam_type;
+      document.querySelector('[name="semester"]').value    = d.semester;
+
+      /* ===== SET ORIGINAL VALUES (CRITICAL) ===== */
+      document.querySelector('[name="original_course_code"]').value = d.course_code;
+      document.querySelector('[name="original_exam_date"]').value   = d.exam_date;
+      document.querySelector('[name="original_dept_id"]').value     = d.dept_id;
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Failed to load exam details");
+    });
+}
+</script>
+
+
 </div>
 </body>
 </html>

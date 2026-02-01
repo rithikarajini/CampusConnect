@@ -3,61 +3,88 @@
 <head>
 <link rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<link rel="stylesheet" href="header.css"><link rel="stylesheet" href="add.css">
+<link rel="stylesheet" href="header.css">
+<link rel="stylesheet" href="add.css">
 <meta charset="UTF-8">
 <title>CampusConnect</title>
 </head>
 <body>
 
-<div >
-  <img src="clogo.png"style="width: 130px; height: auto; position: fixed; top: 10px; left: 0;" >
+<div>
+  <img src="clogo.png" style="width: 130px; height: auto; position: fixed; top: 10px; left: 0;">
 </div>
 <h2 id="title">
   <span class="dark-green">Campus</span> 
   <span class="light-green">Connect</span>
 </h2>
 <div id="menu">
-	<div>
-		<a href="home.html?menu=Event">Event</a>
-	</div>
-	<div>
-		<a href="home.html?menu=Exam">Exam</a>
-	</div>
-	<div >
-		<a href="home.html?menu=Faculty">Faculty</a>
-	</div>
-	<div>
-		<a href="home.html?menu=Fees">Fees</a>
-	</div>
+  <div><a href="home.html?menu=Event">Event</a></div>
+  <div><a href="home.html?menu=Exam">Exam</a></div>
+  <div><a href="hpme.html?menu=Faculty">Faculty</a></div>
+  <div><a href="home.html?menu=Fees">Fees</a></div>
 </div>
+
 <div id="page-content">
   <div id="name">FEES</div>
   
-  <form id="feeform" method="post" action="/CampusConnect/fees">
-    <div>
-      <p id="amt">Amount</p>
-      <input type="number" name="amt" required>
-    </div>
-    <div>
-      <p id="lst_date">Last Date</p>
-      <input type="date" name="lst_date" required>
-    </div>
-    <div>
-      <p id="sem">Semester</p>
-      <select name="sem" required>
+ <form id="feeform" method="post" action="/CampusConnect/fees">
+ <input type="hidden" name="fees_id">
+ 
+  <div>
+    <p>Amount</p>
+    <input type="number" name="amount" required>
+  </div>
+  <div>
+    <p>Last Date</p>
+    <input type="date" name="last_date" required>
+  </div>
+  <div>
+    <p>Semester</p>
+    <select name="semester" required>
       <option value=""></option>
-        <option value="1">I</option>
-        <option value="2">II</option>
-        <option value="3">III</option>
-        <option value="4">IV</option>
-        <option value="5">V</option>
-        <option value="6">VI</option>
-      </select>
-	</div>
+      <option value="1">I</option>
+      <option value="2">II</option>
+      <option value="3">III</option>
+      <option value="4">IV</option>
+      <option value="5">V</option>
+      <option value="6">VI</option>
+    </select>
+  </div>
     <div>
-      <input type="submit" value="Submit">
-    </div>
-  </form>
-</div>
+    <p>Year</p>
+    <input type="number" name="year" required>
+  </div>
+   <div>
+    <input type="submit" value="Submit">
+  </div>
+</form>
+  </div>
+
+
+
 </body>
+<script>
+const params = new URLSearchParams(window.location.search);
+const feesId = params.get("fees_id");
+
+if (feesId) {
+  fetch("../home_fees?fees_id=" + encodeURIComponent(feesId))
+    .then(res => {
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    })
+    .then(d => {
+      document.querySelector('[name="fees_id"]').value = d.fees_id;
+      document.querySelector('[name="amount"]').value = d.amount;
+      document.querySelector('[name="last_date"]').value = d.last_date;
+      document.querySelector('[name="semester"]').value = d.semester;
+      document.querySelector('[name="year"]').value = d.year;
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Failed to load fee details");
+    });
+}
+</script>
+
 </html>

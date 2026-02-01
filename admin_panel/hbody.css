@@ -1,141 +1,29 @@
 @charset "UTF-8";
+
+/* =========================
+   MAIN WHITE CARD
+   ========================= */
 #details {
-  position: fixed;
-  background: #fff;
-  margin-top: 0px;
-  padding: 10px 10px 30px 10px;
-  border-radius: 10px;
+  position: relative;          
   width: 900px;
-  top: 43%; /* move box slightly toward top */
-  left: 50%;
-  transform: translate(-50%, -40%);
+  margin: 50px auto;  /* Adjusted margin for top spacing */
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
   display: flex;
   flex-direction: column;
-  max-height: 80vh; /* optional: limit max height for overflow */
-  overflow-y: auto; /* scroll if content grows too tall */
+  overflow: visible;   /* Remove scroll inside container */
 }
 
-#logo-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10000;
-  transition: transform 1s ease; /* only transform transitions */
-  transform-origin: top left; /* transform pivot point */
-}
-
-#logo-container.shrink {
-   transform: translate(-50px, 0px) scale(0.12);
-  width: 100vw;  /* keep full container size to avoid layout shift */
-  height: auto;
-    top: 10px;
-  left: 10px;
-
-}
-#main-content {
-  opacity: 0;
-  transition: opacity 1s ease;
- }
-
-#main-content.visible {
-  opacity: 1;
-}
-
-#logo {
-  max-width: 90vw;
-  max-height: 90vh;
-  transition: all 1s ease; /* no transition here to avoid flicker */
-}
-
-
-
+/* =========================
+   TITLE
+   ========================= */
 #name h2 {
-  font-size: 30px;
-  color: #337d33;
-  margin-top:30px;	
-  margin-left: 50px;
-  margin-bottom: 15px;
+  text-align: center;
+  font-size: 26px;
+  color: #006a6a;
+  margin-bottom: 25px;
   font-family: 'DM Serif Display', serif;
-}
-
-/* Style the table */
-#tbl {
-  width: 90%;
-  border-collapse: collapse;
-  margin: 0 auto;
-  overflow-x: auto;
-  font-family: 'Satoshi', sans-serif;
-  table-layout: fixed;
-}
-
-/* Table header styling */
-#tbl th {
-  background-color: #f0f0f0; /* light neutral background */
-  color: #333;
-  font-weight: 700;
-  padding: 12px 10px;
-  text-align: center;
-  border: 1px solid #ccc; /* gray lines */
-}
-
-/* Table body rows */
-#tbl tr {
-  background-color: #fff; /* white background for all rows */
-}
-
-/* Grey border lines for cells */
-#tbl td, #tbl th {
-  border: 1px solid #ccc;
-  padding: 10px 15px;
-  word-wrap: break-word;   /* allow word wrap */
-  overflow-wrap: break-word;
-  white-space: normal;     /* allow wrapping */
-  word-break: normal;      /* prevent breaking words arbitrarily */
-}
-
-/* Add spacing between columns */
-#tbl th, #tbl td {
-  padding-left: 15px;
-  padding-right: 15px;
-}
-
-/* Optional: hover highlight on rows */
-#tbl tr:hover {
-  background-color: #f9f9f9;
-}
-/* ADD button styling - isolated to #btn container */
-#btn {
-  text-align: center;
-  margin-top: 30px;
-}
-
-#btn input[type="button"] {
-  background-color:  #006a6a; /* Green tone matching CampusConnect */
-  color: #fff;
-  border: none;
-  padding: 12px 28px;
-  border-radius: 6px;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: 'Satoshi', sans-serif;
-}
-
-/* Hover effect for better interactivity */
-#btn input[type="button"]:hover {
-  background-color: #3db846;
-  transform: scale(1.05);
-}
-
-/* Optional focus state for accessibility */
-#btn input[type="button"]:focus {
-  outline: 2px solid #3db846;
-  outline-offset: 2px;
 }
 

@@ -1,157 +1,254 @@
+
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<link rel="stylesheet" href="header.css"><link rel="stylesheet" href="hbody.css">
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 <title>CampusConnect</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<link rel="stylesheet" href="header.css" />
+<link rel="stylesheet" href="hbody.css" />
+<link rel="stylesheet" href="container.css" />
+
+
 </head>
+<style>
+.icon-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:38px;
+  height:38px;
+  border-radius:10px;
+  cursor:pointer;
+  transition:.25s;
+  font-size:16px;
+}
+.edit-btn{
+	margin:5px;
+  padding: 5px;
+}
+.edit-btn:hover{ transform:translateY(-3px) scale(1.05); 
+  background: rgba(0,191,255,0.15);}
+
+.delete-btn{
+	margin:5px;
+  padding: 8px;
+  
+}
+.delete-btn:hover{ transform:translateY(-3px) scale(1.05); 
+background: rgba(255,204,203,0.3);}
+</style>
 <body>
-	<div id="logo-container" >
-	  <img src="clogo.png" id="logo" >
-	</div>
-	<div id="main-content" style="display:none;">
-		<div style="position: fixed; width: 500px; height: 400px;">
-		  	<img src="clogo.png"style="width: 130px; height: auto; position: fixed; top: 10px; left: 0;" >
-		 </div>
-		<h2 id="title">
-			  <span class="dark-green">Campus</span> 
-			  <span class="light-green">Connect</span>
-		</h2>
-		<div id="menu">
-			<div  id="evnt">
-				<a href="home.html?menu=Event">Event</a>
-			</div>
-			<div id="exm">
-				<a href="home.html?menu=Exam">Exam</a>
-			</div>
-			<div >
-		<a href="home.html?menu=Faculty">Faculty</a>
-		</div>
-			<div id="fee">
-				<a href="home.html?menu=Fees">Fees</a>
-			</div>
-		</div>
-		<div id="details">
-			<div id="name"></div>
-			<div id="table">
-				<table id="tbl"></table>
-			</div>
-			<div id="btn">
-				<a href=""><input type="button" value="ADD"></a>
-			</div>
-		</div>
-	</div>
-	<script>
-	window.onload = function() {
-		  const logoContainer = document.getElementById('logo-container');
-		  const mainContent = document.getElementById('main-content');
-		  
-		  if (!localStorage.getItem('logoShown')) {
-		  setTimeout(() => {
-		    logoContainer.classList.add('shrink');
-		  }, 200);
-		  
-		  setTimeout(() => {
-		    logoContainer.style.display = 'none';
-		    mainContent.style.display = 'block';
-		    void mainContent.offsetWidth;
-	
-		    mainContent.classList.add('visible');
-		    
-		    localStorage.setItem('logoShown', 'true');
-		    initPageContent();
-		  }, 1300);
-		}else {
-			 logoContainer.style.display = 'none';
-			    mainContent.style.display = 'block';
-			    mainContent.classList.add('visible');
-			    initPageContent();
-		}
-		  
-		};
-	
-	 function initPageContent() {
-		  const param = new URLSearchParams(window.location.search);
-		  const selectedmenu = param.get("menu") || "Event"; // default
-		  
-		  const menuLinks = document.querySelectorAll('#menu div a');
-	
-		  menuLinks.forEach(link => {
-		    if(link.href.includes(selectedmenu)){
-		      link.classList.add('active');
-		    } else {
-		      link.classList.remove('active');
-		    }
-		  });
-		
-		const heading = {
-				Event: ["Event ID", "Event Name", "Event Date", "Department ID", "Actions"],
-				Exam: ["Course Code", "Course Name", "Date","class","Dept Name", "Actions"],
-				Faculty:["ID", "Name","Designation","Department", "Actions"],
-				Fees:["Fee ID", "Amount", "Last Date", "Semester", "Actions"]
-		};
-		
-		const KeyByMenu = {
-				Event: ["event_id", "event_name", "event_date", "dept_id"],
-				Exam: ["course_code", "course_name", "exam_date","class","dept_id"],
-				Faculty:["ID", "Name","Designation","Departmen"], 
-				Fees:["fee_id", "amount", "Last_date", "semester"]
-		};
-		
-		const nameDiv = document.getElementById("name");
-		const table = document.getElementById("tbl");
-		const btn = document.querySelector("#btn a");
-		
-		
-		if(selectedmenu && heading[selectedmenu]){
-			
-			nameDiv.innerHTML = `<h2>${selectedmenu.toUpperCase()}</h2>` ;
-			btn.href = `${selectedmenu}.html` ;
-			
-			table.innerHTML="";
-			
-			const trhead = document.createElement("tr");
-			heading[selectedmenu].forEach(h =>{
-				const th = document.createElement("th");
-				th.textContent = h ;
-				trhead.appendChild(th);
-			});
-			table.appendChild(trhead);
-			
-			fetch(`${selectedmenu}ListServlet`)
-				.then(response => response.json())
-				.then(data =>{
-					data.forEach(row => {
-						const tr = document.createElement("tr");
-						
-						KeyByMenu[selectedmenu].forEach(key => {
-			                const td = document.createElement("td");
-						td.textContent = row[key] ?? "";
-						tr.appendChild(td);
-						});
-			
-						const actionTd = document.createElement("td");
-			            actionTd.innerHTML = `
-			                <i class="fa-solid fa-pen-to-square edit-icon" 
-			                   data-id="${row.id}"
-			                   style="cursor:pointer; margin-right:10px; font-size:18px; color:#007bff;"></i>
-	
-			                <i class="fa-solid fa-trash delete-icon" 
-			                   data-id="${row.id}"
-			                   style="cursor:pointer; font-size:18px; color:#d9534f;"></i>`;
-			                   
-			            tr.appendChild(actionTd);
-			            table.appendChild(tr);
-					});
-					
-				})
-				 .catch(err => console.error("Error loading data:", err));
-				
-		}
-	
-	};	
-	</script>
+<div id="logo-container"><img src="clogo.png" id="logo" /></div>
+
+<div id="main-content" style="display:none; padding:20px;">
+  <div style="position:fixed; width:500px; height:400px;">
+    <img src="clogo.png" style="width:130px; height:auto; position:fixed; top:10px; left:0;" />
+  </div>
+  <h2 id="title"><span class="dark-green">Campus</span> <span class="light-green">Connect</span></h2>
+  
+  <div id="menu">
+    <div><a href="home.html?menu=Event">Event</a></div>
+    <div ><a href="home.html?menu=Exam">Exam</a></div>
+    <div><a href="home.html?menu=Faculty">Faculty</a></div>
+    <div><a href="home.html?menu=Fees">Fees</a></div>
+  </div>
+
+  <div id="details">
+    <div id="name"></div>
+    <div id="table-container"></div>
+    <div id="btn" style="margin-top:15px;"><a href=""><input type="button" value="ADD" /></a></div>
+  </div>
+</div>
+<!-- DELETE CONFIRMATION MODAL -->
+
+<div id="deleteModal" style="
+  display:none;
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.5);
+  z-index:9999;
+">
+  <div style="
+    background:#fff;
+    width:320px;
+    padding:20px;
+    margin:15% auto;
+    border-radius:8px;
+    text-align:center;
+  ">
+    <h3>Delete Event</h3>
+    <p>Are you sure you want to delete this event?</p>
+
+<form method="post" id="deleteForm">
+  <input type="hidden" name="action" value="delete">
+
+  <!-- EVENT -->
+  <input type="hidden" name="event_id" id="deleteEventId">
+
+  <!-- EXAM -->
+  <input type="hidden" name="course_code" id="deleteCourseCode">
+  <input type="hidden" name="exam_date" id="deleteExamDate">
+  <input type="hidden" name="dept_id" id="deleteDeptId">
+
+  <!-- FACULTY -->
+  <input type="hidden" name="f_id" id="deleteFacultyId">
+
+  <!-- FEES -->
+  <input type="hidden" name="fees_id" id="deleteFeesId">
+
+  <button type="submit" style="background:#e74c3c;color:#fff;padding:8px 16px;border:none;border-radius:5px;">Delete</button>
+  <button type="button" onclick="closeDelete()" style="margin-left:10px;padding:8px 16px;border-radius:5px;">Cancel</button>
+</form>
+
+  </div>
+</div>
+
+<script>
+document.addEventListener("click", function(e) {
+  const btn = e.target.closest(".delete-btn");
+  if (!btn) return;
+
+  const form = document.getElementById("deleteForm");
+
+  // Reset all hidden fields
+  [
+    "deleteEventId",
+    "deleteCourseCode",
+    "deleteExamDate",
+    "deleteDeptId",
+    "deleteFacultyId",
+    "deleteFeesId"
+  ].forEach(id => document.getElementById(id).value = "");
+
+  switch (btn.dataset.type) {
+
+    case "event":
+      form.action = "/CampusConnect/home_event";
+      document.getElementById("deleteEventId").value = btn.dataset.id;
+      break;
+
+    case "exam":
+      form.action = "/CampusConnect/home_exam";
+      document.getElementById("deleteCourseCode").value = btn.dataset.course;
+      document.getElementById("deleteExamDate").value = btn.dataset.date;
+      document.getElementById("deleteDeptId").value = btn.dataset.dept;
+      break;
+
+    case "faculty":
+      form.action = "/CampusConnect/home_faculty";
+      document.getElementById("deleteFacultyId").value = btn.dataset.id;
+      break;
+
+    case "fees":
+      form.action = "/CampusConnect/home_fees";
+      document.getElementById("deleteFeesId").value = btn.dataset.id;
+      break;
+  }
+
+  document.getElementById("deleteModal").style.display = "block";
+});
+
+function closeDelete() {
+  document.getElementById("deleteModal").style.display = "none";
+}
+</script>
+
+
+
+<script>
+window.onload=function(){
+  const logoContainer=document.getElementById('logo-container');
+  const mainContent=document.getElementById('main-content');
+
+  if(!localStorage.getItem('logoShown')){
+    setTimeout(()=>logoContainer.classList.add('shrink'),200);
+    setTimeout(()=>{
+      logoContainer.style.display='none';
+      mainContent.style.display='block';
+      void mainContent.offsetWidth;
+      mainContent.classList.add('visible');
+      localStorage.setItem('logoShown','true');
+      initPageContent();
+    },1300);
+  }else{
+    logoContainer.style.display='none';
+    mainContent.style.display='block';
+    mainContent.classList.add('visible');
+    initPageContent();
+  }
+};
+
+function initPageContent(){
+  const param=new URLSearchParams(window.location.search);
+  const selectedmenu=param.get("menu")||"Event";
+
+  document.querySelectorAll('#menu div a').forEach(link=>link.classList.toggle('active',link.href.includes(selectedmenu)));
+
+  const nameDiv=document.getElementById("name");
+  const tableContainer=document.getElementById("table-container");
+  const btn=document.querySelector("#btn a");
+  nameDiv.innerHTML=`<h2>${selectedmenu.toUpperCase()}</h2>`;
+  btn.href=`${selectedmenu}.html`;
+
+  let endpoint='';
+  if(selectedmenu==="Event") endpoint='/CampusConnect/home_event';
+  else if(selectedmenu==="Fees") endpoint='/CampusConnect/home_fees';
+  else if(selectedmenu==="Exam") endpoint='/CampusConnect/home_exam';
+  else if(selectedmenu==="Faculty") endpoint='/CampusConnect/home_faculty';
+
+  if(endpoint) loadTableData(tableContainer,endpoint);
+  else showEmptyTable(selectedmenu,tableContainer);
+}
+
+function loadTableData(container,endpoint){
+  fetch(endpoint)
+    .then(resp=>resp.text())
+    .then(html=>{
+      container.innerHTML=html;
+    })
+    .catch(err=>{ console.error("Error:",err); container.innerHTML="<p>Error loading data.</p>"; });
+}
+
+function showEmptyTable(menu,container){
+  container.innerHTML="";
+  const headings={
+    Event:["ID","Name","Date","Dept","Rulebook","Actions"],
+    Exam:["Code","Name","Date","Class","Dept","Actions"],
+    Fees:["ID","Student","Amount","Due","Actions"],
+    Faculty:["ID","Name","Designation","Department","Actions"]
+  };
+  const table=document.createElement("table");
+  const thead=document.createElement("thead");
+  const headerRow=document.createElement("tr");
+  (headings[menu]||[]).forEach(text=>{
+    const th=document.createElement("th");
+    th.textContent=text;
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+  container.appendChild(table);
+}
+
+
+function renumberTableRows(container){
+  const table=container.querySelector("table");
+  if(table&&table.tBodies.length>0){
+    Array.from(table.tBodies[0].rows).forEach((row,index)=>{
+      if(row.cells[0]) row.cells[0].textContent=index+1;
+    });
+  }
+}
+
+function showSuccessToast(message){
+  const toast=document.createElement('div');
+  toast.className='success-toast';
+  toast.innerHTML=`<i class="fas fa-check-circle" style="margin-right:8px"></i>${message}`;
+  document.body.appendChild(toast);
+  setTimeout(()=>toast.remove(),3000);
+}
+</script>
 </body>
 </html>

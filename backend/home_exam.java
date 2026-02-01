@@ -1,204 +1,195 @@
-import java.io.*;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.*;
-import jakarta.servlet.*;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 @WebServlet("/home_exam")
 public class home_exam extends HttpServlet {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/demo2?useSSL=false&serverTimezone=UTC";
-    private static final String USER = "root";
-    private static final String PASS = "25swathi14";
+    private static final long serialVersionUID = 1L;
 
-    // -------------------- Department Mapping --------------------
-    private String getDeptName(int deptId) {
-        switch (deptId) {
-            case 1: return "BCA";
-            case 2: return "Languages";
-            case 3: return "BA Tamil";
-            case 4: return "MA English";
-            case 5: return "BA English";
-            case 6: return "B.Com general A";
-            case 7: return "B.Com general B";
-            case 8: return "B.Com A&F";
-            case 9: return "B.Com CA";
-            case 10: return "B.Com Honours";
-            case 11: return "M.Com General";
-            case 12: return "B.Com CS";
-            case 13: return "BBA";
-            case 14: return "MA HRM";
-            case 15: return "B.SC IT";
-            case 16: return "M.SC IT";
-            case 17: return "B.SC CS";
-            case 18: return "BA Corporate Economics";
-            case 19: return "Viscom";
-            case 20: return "B.SC Psychology";
-            case 21: return "B.SC Data Science";
-            case 22: return "MA Communication";
-            case 23: return "B.SC Maths";
-            case 24: return "M.SC Maths";
-            case 25: return "B.SC Physics";
-            case 26: return "B.SC Chemistry";
-            case 27: return "B.SC Plant Biology";
-            case 28: return "B.SC Home Science";
-            case 29: return "BA History";
-            case 30: return "B.SC Advanced Zoology";
-            default: return "UNKNOWN";
+    private static final String URL =
+        "jdbc:mysql://localhost:3306/campusconnect?useSSL=false";
+    private static final String USER = "root";
+    private static final String PASS = "Rithika@14";
+
+    /* ================= DEPT NAME ================= */
+    private String getDeptName(int d) {
+        switch (d) {
+        case 1: return "BCA";
+        case 2: return "MSc IT";
+        case 3: return "BCom General";
+        case 4: return "BA Corporate Economics";
+        case 5: return "BSc Visual Communication";
+        case 6: return "BSc IT";
+        case 7: return "BSc Psychology";
+        case 8: return "BCom A&F";
+        case 9: return "BCom CA";
+        case 10: return "BCom Honours";
+        case 11: return "BBA";
+        case 12: return "MA Communication";
+        case 13: return "MA HRM";
+        case 14: return "MA English";
+        case 15: return "MA International Studies";
+        case 16: return "MSc Mathematics";
+        case 17: return "MSc Physics";
+        case 18: return "MSc Chemistry";
+        case 19: return "MSc Biotechnology";
+        case 21: return "MSc Data Science";
+        case 22: return "MCom General";
+        case 23: return "BA History";
+        case 24: return "BA English";
+        case 25: return "BSc Mathematics";
+        case 26: return "BSc Physics";
+        case 27: return "BSc Chemistry";
+        case 28: return "BSc Plant Biology";
+        case 29: return "BSc Home Science";
+        case 30: return "BSc Computer Science";
+        case 31: return "MSc Psychology";
+        default: return "UNKNOWN";
         }
     }
 
+    /* ================= GET ================= */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
-        String idParam = request.getParameter("id");
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection conn = DriverManager.getConnection(URL, USER, PASS);
+        String courseCode = request.getParameter("course_code");
+        String examDate   = request.getParameter("exam_date");
+        String deptIdStr  = request.getParameter("dept_id");
 
-            // ---------------- EDIT MODE ----------------
-            if (idParam != null) {
-                int id = Integer.parseInt(idParam);
-                PreparedStatement ps = conn.prepareStatement("SELECT * FROM exam WHERE id=?");
-                ps.setInt(1, id);
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASS)) {
+
+            /* ========== AJAX MODE (FOR EDIT PAGE) ========== */
+            if (courseCode != null && examDate != null && deptIdStr != null) {
+
+                response.setContentType("application/json");
+                PrintWriter out = response.getWriter();
+
+                PreparedStatement ps = conn.prepareStatement(
+                    "SELECT * FROM exam WHERE course_code=? AND exam_date=? AND dept_id=? LIMIT 1"
+                );
+                ps.setString(1, courseCode);
+                ps.setDate(2, Date.valueOf(examDate));
+                ps.setInt(3, Integer.parseInt(deptIdStr));
+
                 ResultSet rs = ps.executeQuery();
 
                 if (rs.next()) {
-                    out.println("<h3>Edit Exam</h3>");
-                    out.println("<form method='post' action='home_exam'>");
-                    out.println("<input type='hidden' name='id' value='" + rs.getInt("id") + "'>");
-                    out.println("Course Code:<input type='text' name='course_code' value='" + rs.getString("course_code") + "' required><br>");
-                    out.println("Course Name:<input type='text' name='course_name' value='" + rs.getString("course_name") + "' required><br>");
-                    out.println("Exam Date:<input type='date' name='exam_date' value='" + rs.getString("exam_date") + "' required><br>");
-                    out.println("Classes:<input type='text' name='classes' value='" + rs.getString("classes") + "' required><br>");
-
-                    // Department dropdown
-                    int currentDept = rs.getInt("dept_id");
-                    out.println("Department:<select name='dept_id'>");
-                    for (int d = 1; d <= 30; d++) {
-                        if (d == currentDept)
-                            out.println("<option value='" + d + "' selected>" + getDeptName(d) + "</option>");
-                        else
-                            out.println("<option value='" + d + "'>" + getDeptName(d) + "</option>");
-                    }
-                    out.println("</select><br>");
-
-                    out.println("Exam Type:<input type='text' name='exam_type' value='" + rs.getString("exam_type") + "' required><br>");
-                    out.println("Semester:<input type='text' name='semester' value='" + rs.getString("semester") + "' required><br>");
-                    out.println("<input type='submit' value='Update'>");
-                    out.println("</form>");
+                    out.print("{");
+                    out.print("\"course_code\":\"" + rs.getString("course_code") + "\",");
+                    out.print("\"course_name\":\"" + rs.getString("course_name") + "\",");
+                    out.print("\"exam_date\":\"" + rs.getString("exam_date") + "\",");
+                    out.print("\"classes\":\"" + rs.getInt("classes") + "\",");
+                    out.print("\"dept_id\":" + rs.getInt("dept_id") + ",");
+                    out.print("\"exam_type\":\"" + rs.getString("exam_type") + "\",");
+                    out.print("\"semester\":\"" + rs.getString("semester") + "\"");
+                    out.print("}");
+                } else {
+                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 }
-
-                rs.close();
-                ps.close();
-            } 
-            // ---------------- DISPLAY TABLE ----------------
-            else {
-                Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT * FROM exam ORDER BY id");
-                out.println("<table border='1'><tr><th>#</th><th>Course Code</th><th>Course Name</th><th>Exam Date</th><th>Classes</th><th>Department</th><th>Exam Type</th><th>Semester</th><th>Actions</th></tr>");
-                int sno = 1;
-
-                while (rs.next()) {
-                    int id = rs.getInt("id");
-                    out.println("<tr>");
-                    out.println("<td>" + sno++ + "</td>");
-                    out.println("<td>" + rs.getString("course_code") + "</td>");
-                    out.println("<td>" + rs.getString("course_name") + "</td>");
-                    out.println("<td>" + rs.getString("exam_date") + "</td>");
-                    out.println("<td>" + rs.getString("classes") + "</td>");
-                    out.println("<td>" + getDeptName(rs.getInt("dept_id")) + "</td>"); // Department Name
-                    out.println("<td>" + rs.getString("exam_type") + "</td>");
-                    out.println("<td>" + rs.getString("semester") + "</td>");
-                    out.println("<td>");
-                    out.println("<a class='action-edit' href='home_exam?id=" + id + "' style='margin-right:10px;'><i class='fa-solid fa-pen-to-square'></i></a>");
-
-                    // Delete button with POST
-                    out.println("<form method='post' action='home_exam' style='display:inline;'>");
-                    out.println("<input type='hidden' name='action' value='delete'>");
-                    out.println("<input type='hidden' name='id' value='" + id + "'>");
-                    out.println("<button type='submit' onclick='return confirm(\"Delete this exam permanently?\");' style='border:none;background:none;padding:0;cursor:pointer;color:red;'>");
-                    out.println("<i class='fa-solid fa-trash'></i>");
-                    out.println("</button>");
-                    out.println("</form>");
-
-                    out.println("</td>");
-                    out.println("</tr>");
-                }
-
-                out.println("</table>");
-                rs.close();
-                stmt.close();
+                return;
             }
 
-            conn.close();
+            /* ========== NORMAL TABLE VIEW ========== */
+            response.setContentType("text/html;charset=UTF-8");
+            PrintWriter out = response.getWriter();
+
+            ResultSet rs = conn.createStatement()
+                .executeQuery("SELECT * FROM exam ORDER BY exam_date");
+
+            out.println("<table border='1'>");
+            out.println("<tr>");
+            out.println("<th>ID</th>");
+            out.println("<th>Course Code</th>");
+            out.println("<th>Course Name</th>");
+            out.println("<th>Exam Date</th>");
+            out.println("<th>Department</th>");
+            out.println("<th>Actions</th>");
+            out.println("</tr>");
+
+            int i = 1;
+            while (rs.next()) {
+                String code = rs.getString("course_code");
+                String date = rs.getString("exam_date");
+                int deptId  = rs.getInt("dept_id");
+
+                out.println("<tr>");
+                out.println("<td>" + i++ + "</td>");
+                out.println("<td>" + code + "</td>");
+                out.println("<td>" + rs.getString("course_name") + "</td>");
+                out.println("<td>" + date + "</td>");
+                out.println("<td>" + getDeptName(deptId) + "</td>");
+                out.println("<td>");
+
+                /* ===== EDIT ICON ===== */
+                out.println("<span class='edit-btn'>");
+                out.println(
+                    "<a href='/CampusConnect/admin_panel/Exam.html" +
+                    "?course_code=" + code +
+                    "&exam_date=" + date +
+                    "&dept_id=" + deptId + "'>"
+                );
+                out.println("<i class='fa-solid fa-pen-to-square' style='color:#00BFFF;'></i></a>");
+                out.println("</span>");
+
+                /* ===== DELETE ICON ===== */
+                out.println(
+                		  "<span class='delete-btn' " +
+                		  "data-type='exam' " +
+                		  "data-course='" + code + "' " +
+                		  "data-date='" + date + "' " +
+                		  "data-dept='" + deptId + "' " +
+                		  "style='cursor:pointer;color:red;'>"
+                		);
+                		out.println("<i class='fa-solid fa-trash'></i>");
+                		out.println("</span>");
+
+
+
+                out.println("</td>");
+                out.println("</tr>");
+            }
+            out.println("</table>");
+
         } catch (Exception e) {
             e.printStackTrace();
-            out.println("ERROR: " + e.getMessage());
+            response.getWriter().println("ERROR");
         }
     }
 
-    // ---------------- POST: UPDATE / DELETE ----------------
+    /* ================= POST (DELETE ONLY) ================= */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
         String action = request.getParameter("action");
 
-        // DELETE
         if ("delete".equals(action)) {
-            String idParam = request.getParameter("id");
-            if (idParam == null || idParam.isEmpty()) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing ID");
-                return;
-            }
-            int id = Integer.parseInt(idParam);
+
+            String code = request.getParameter("course_code");
+            String date = request.getParameter("exam_date");
+            int deptId  = Integer.parseInt(request.getParameter("dept_id"));
+
             try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
-                 PreparedStatement ps = conn.prepareStatement("DELETE FROM exam WHERE id=?")) {
-                ps.setInt(1, id);
+                 PreparedStatement ps = conn.prepareStatement(
+                     "DELETE FROM exam WHERE course_code=? AND exam_date=? AND dept_id=?"
+                 )) {
+
+                ps.setString(1, code);
+                ps.setDate(2, Date.valueOf(date));
+                ps.setInt(3, deptId);
                 ps.executeUpdate();
-                response.sendRedirect("home.html?menu=Exam");
+
+                response.sendRedirect("./admin_panel/home.html?menu=Exam");
+
             } catch (Exception e) {
                 e.printStackTrace();
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error deleting exam");
+                throw new ServletException(e);
             }
-            return;
-        }
-
-        // UPDATE
-        String idParam = request.getParameter("id");
-        if (idParam == null || idParam.isEmpty()) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing ID");
-            return;
-        }
-
-        int id = Integer.parseInt(idParam);
-        String course_code = request.getParameter("course_code");
-        String course_name = request.getParameter("course_name");
-        String exam_date = request.getParameter("exam_date");
-        String classes = request.getParameter("classes");
-        int dept_id = Integer.parseInt(request.getParameter("dept_id"));
-        String exam_type = request.getParameter("exam_type");
-        String semester = request.getParameter("semester");
-
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
-             PreparedStatement ps = conn.prepareStatement(
-                     "UPDATE exam SET course_code=?, course_name=?, exam_date=?, classes=?, dept_id=?, exam_type=?, semester=? WHERE id=?")) {
-
-            ps.setString(1, course_code);
-            ps.setString(2, course_name);
-            ps.setString(3, exam_date);
-            ps.setString(4, classes);
-            ps.setInt(5, dept_id);
-            ps.setString(6, exam_type);
-            ps.setString(7, semester);
-            ps.setInt(8, id);
-
-            ps.executeUpdate();
-            response.sendRedirect("home.html?menu=Exam");
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 }
