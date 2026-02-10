@@ -216,8 +216,9 @@ html, body {
     </div>
   </div>
 </div>
-
+<button id="enable-serial" style="display:none;"></button>
 <script>
+let ignoreFirstMicSignal = true;
 let voiceMode = false;
 
 function htmlToSpeechText(html) {
@@ -405,8 +406,123 @@ function speak(text) {
 	  window.speechSynthesis.speak(utterance);
 	}
 
+function startVoiceFromHardware() {
+	if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
+	    alert("Speech recognition not supported in this browser");
+	    return;
+	  }
 
-	
+	  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+	  const recognition = new SpeechRecognition();
+
+	  recognition.lang = "en-IN";
+	  recognition.interimResults = false;
+	  recognition.maxAlternatives = 1;
+
+	  voiceModal.style.display = "flex";
+
+	  recognition.start();
+
+	  recognition.onresult = async event => {
+	    const spokenText = event.results[0][0].transcript;
+
+	    voiceModal.style.display = "none";
+
+	    // SHOW USER MESSAGE
+	    addMessage(spokenText, "user");
+
+	    // SHOW TYPING
+	    const typingDiv = showTyping();
+
+	    let botReply = "";
+	    try {
+	      const response = await fetch("../VoiceServlet", {
+	        method: "POST",
+	        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+	        body: "message=" + encodeURIComponent(spokenText)
+	      });
+	      botReply = await response.text();
+	    } catch (e) {
+	      botReply = "Sorry, I could not connect to the server.";
+	    }
+
+	    typingDiv.remove();
+	    
+	    addMessage(botReply, "bot");
+	    speak(htmlToSpeechText(botReply));
+
+	    voiceMode = false;
+
+	  };
+
+	  recognition.onerror = () => {
+		  recognition.stop();
+		  voiceMode = false;
+		  voiceModal.style.display = "none";
+		  alert("Voice recognition failed. Please try again.");
+		};
+		
+}
+
+let port;
+let reader;
+let serialConnected = false;
+
+let serialInitDone = false;
+
+//One-time user gesture (click anywhere on page)
+document.addEventListener("click", async () => {
+if (serialInitDone) return;
+
+if (!("serial" in navigator)) {
+ alert("Web Serial not supported. Use Chrome or Edge.");
+ return;
+}
+
+try {
+ port = await navigator.serial.requestPort();
+ await port.open({ baudRate: 115200 });
+
+ reader = port.readable.getReader();
+ serialConnected = true;
+ serialInitDone = true;
+
+ console.log("✅ Serial connected to ESP32");
+ // optional: toast / console only (no alert)
+
+ readESP32(); // start listening
+} catch (err) {
+ console.error(err);
+ alert("ESP32 connection failed");
+}
+}, { once: true });
+
+async function readESP32() {
+	  const decoder = new TextDecoder();
+
+	  while (serialConnected) {
+	    const { value, done } = await reader.read();
+	    if (done) break;
+
+	    const text = decoder.decode(value).trim();
+	    if (!text) continue;
+
+	    console.log("ESP32:", text);
+
+	    if (text.includes("M")) {
+
+	      if (ignoreFirstMicSignal) {
+	        console.log("Ignoring first mic trigger");
+	        ignoreFirstMicSignal = false;
+	        continue;
+	      }
+
+	      // ✅ Real touch-triggered mic start
+	      startVoiceFromHardware();
+	    }
+	  }
+	}
+
 
 </script>
 </body>
