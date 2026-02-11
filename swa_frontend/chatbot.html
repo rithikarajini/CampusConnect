@@ -2,282 +2,589 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>CampusConnect Chatbot</title>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 
 <style>
-html,body{
-  margin:0;
-  height:100%;
-  font-family:Segoe UI;
-  background: url("back.jpg") no-repeat center center fixed;
-  background-size: cover;
+/* ---------- GENERAL LAYOUT ---------- */
+html, body {
+  margin: 0; padding: 0;
+  height: 100%;
+  font-family: 'Segoe UI', Tahoma;
+  background: #f0f0f0;
+}
+#chat-container {
+  position: fixed; top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  display: flex; flex-direction: column;
+  background: #fff;
+  overflow: hidden;
 }
 
-/* Chat container */
-#chat-container{
-  width:100vw;
-  height:100vh;
-  display:flex;
-  flex-direction:column;
-  background: rgba(255,255,255,0.9);
+/* ---------- HEADER (CENTER FIXED) ---------- */
+#chat-header {
+  height: 80px;
+  border-bottom: 1px solid grey;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: #fff;
 }
 
-/* Header */
-#chat-header{
-  height:80px;
-  border-bottom:1px solid #aaa;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#fff;
+#header-logo-button {
+  position: absolute;
+  left: 30px;
+  height: 70px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
 }
+#header-logo-button img { height: 100%; }
 
-.brand-text{
-  font-size:50px;
-  font-weight:900
+.brand-text {
+  font-size: 60px;
+  font-weight: 900;
+  display: flex;
+  user-select: none;
 }
-.campus{color:#205B6F}
-.connect{color:#8cc63f}
+.campus { color: #205B6F; }
+.connect { color: #8cc63f; }
 
-/* Chat window */
-#chat-window{
-  flex:1;
-  padding:20px;
-  overflow-y:auto;
+/* ---------- CHAT WINDOW ---------- */
+#chat-window {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
   background-image: url("back.jpg");
-  background-repeat: no-repeat;
   background-size: cover;
-  background-position: center;
+}
+.message {
+  display: flex;
+  margin-bottom: 15px;
+  margin-right: 150px;
+  animation: fadeIn .3s forwards;
+  opacity: 0;
+}
+@keyframes fadeIn { to { opacity: 1; } }
+
+.avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  margin: 0 10px;
+  border: 2px solid #757575;
+  object-fit: cover;
 }
 
-/* Messages */
-.message{display:flex;margin-bottom:15px}
-.user{justify-content:flex-end}
-.bot{justify-content:flex-start}
-
-.message-content{
-  max-width:300px;
-  padding:12px 18px;
-  border-radius:20px;
-  word-break:break-word;
+.message-content {
+  max-width: 320px;
+  padding: 12px 18px;
+  border-radius: 20px;
+  word-break: break-word;
+}
+.user { justify-content: flex-end; }
+.user .message-content {
+  background: #757575; color: #fff;
+  border-radius: 20px 20px 0 20px;
+}
+.bot { justify-content: flex-start; margin-left: 150px; }
+.bot .message-content {
+  background: #c0c0c0; color: #2e2e2e;
+  border-radius: 40px 40px 40px 0;
 }
 
-.user .message-content{
-  background:#757575;
-  color:#fff
+/* ---------- TYPING DOTS ---------- */
+.typing-dots span {
+  width: 8px; height: 8px;
+  background: #757575;
+  border-radius: 50%;
+  display: inline-block;
+  margin: 0 3px;
+  animation: blink 1.4s infinite;
+  opacity: .3;
 }
-.bot .message-content{
-  background:#c0c0c0
-}
-
-/* Input area */
-#input-area{
-  display:flex;
-  padding:10px;
-  position:relative;
-  background:#fff;
-}
-
-#user-input{
-  flex:1;
-  padding:14px 110px 14px 20px;
-  border-radius:30px;
-  border:1px solid #999;
-  font-size:16px;
-  resize:none;
+@keyframes blink {
+  0%,80%,100% { opacity: .3; }
+  40% { opacity: 1; }
 }
 
-/* Buttons */
-#voice-btn,#send-btn{
-  position:absolute;
-  width:40px;
-  height:40px;
-  border-radius:50%;
-  border:none;
-  background:#757575;
-  color:#fff;
-  cursor:pointer;
-  top:50%;
-  transform: translateY(-50%);
-  
+/* ---------- INPUT AREA ---------- */
+#input-area {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  position: relative;
+}
+#user-input {
+  flex: 1;
+  padding: 14px 110px 14px 20px;
+  font-size: 17px;
+  border-radius: 30px;
+  border: 1.8px solid #999;
+  resize: none;
+  background: #f0f0f0;
+  outline: none;
+}
+#user-input:focus {
+  background: #fff;
+  border-color: #666;
+}
+#voice-btn, #send-btn {
+  position: absolute;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  background: #757575;
+  color: #fff;
+}
+#voice-btn { right: 94px; }
+#send-btn { right: 44px; }
+#send-btn:disabled { background: #bbb; }
+
+/* ---------- VOICE MODAL ---------- */
+#voice-modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(48,48,48,0.08);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+#voice-modal-content {
+  background: #fff;
+  padding: 40px 50px;
+  border-radius: 20px;
+  text-align: center;
+}
+.mic-icon { font-size: 3rem; color: #757575; }
+.modal-text { font-size: 1.6rem; font-weight: 700; color: #205B6F; }
+
+.listening-animation {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.listening-animation span {
+  width: 12px; height: 12px;
+  background: #32c862;
+  border-radius: 50%;
+  animation: blink 1.2s infinite;
+  opacity: .4;
 }
 
-#voice-btn{right:80px}
-#send-btn{right:30px}
-
-/* Voice modal */
-#voice-modal{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100vw;
-  height:100vh;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  background:rgba(0,0,0,.2);
+/* Repeat icon (ONLY ICON – NO FUNCTION) */
+.repeat-icon {
+  margin-left: 350px;
+  margin-top: 1px;
+  font-size: 15px;
+  color: #666;
+  cursor: pointer;
 }
 
-#voice-modal-content{
-  background:#fff;
-  padding:30px 50px;
-  border-radius:20px;
-  text-align:center;
+.repeat-icon:hover {
+  color: #000;
 }
+
 </style>
 </head>
 
 <body>
-
 <div id="chat-container">
 
+  <!-- HEADER -->
   <header id="chat-header">
+    <button id="header-logo-button">
+      <img src="whitelogo.jpg" />
+    </button>
+
     <span class="brand-text">
       <span class="campus">Campus</span><span class="connect">Connect</span>
     </span>
   </header>
 
+  <!-- CHAT -->
   <div id="chat-window"></div>
 
+  <!-- INPUT -->
   <form id="input-area">
     <textarea id="user-input" placeholder="Say something..."></textarea>
-    <button id="voice-btn" type="button">
-      <i class="fas fa-microphone"></i>
-    </button>
-    <button id="send-btn" type="submit">
-      <i class="fas fa-paper-plane"></i>
-    </button>
+    <button id="voice-btn" type="button"><i class="fas fa-microphone"></i></button>
+    <button id="send-btn" type="submit"><i class="fas fa-paper-plane"></i></button>
   </form>
 
 </div>
 
+<!-- VOICE MODAL -->
 <div id="voice-modal">
   <div id="voice-modal-content">
-    <h2>🎤 Listening...</h2>
-    <p>Speak now</p>
+    <span class="mic-icon"><i class="fas fa-microphone"></i></span>
+    <div class="modal-text">Speak now…</div>
+    <div class="listening-animation">
+      <span></span><span></span><span></span>
+    </div>
   </div>
 </div>
-
+<button id="enable-serial" style="display:none;"></button>
 <script>
+
+
+function speakText(text) {
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "en-IN";
+  utterance.rate = 1;
+  utterance.pitch = 1;
+  utterance.volume = 1;
+
+  window.speechSynthesis.speak(utterance);
+}
+
+let ignoreFirstMicSignal = true;
+let voiceMode = false;
+
+function htmlToSpeechText(html) {
+	  if (!html) return "";
+
+	  return html
+	    .replace(/<br\s*\/?>/gi, ". . ")     // longer pause
+	    .replace(/<hr\s*\/?>/gi, ". . ")   // longer pause
+	    .replace(/<\/b>/gi, ". ")          // pause after bold headings
+	    .replace(/<[^>]*>/g, "")           // remove remaining tags
+	    .replace(/\s+/g, " ")              // normalize spaces
+	    .trim();
+	}
+
+
 const chatWindow = document.getElementById("chat-window");
 const userInput = document.getElementById("user-input");
-const voiceBtn = document.getElementById("voice-btn");
+const sendButton = document.getElementById("send-btn");
 const voiceModal = document.getElementById("voice-modal");
+const voiceButton = document.getElementById("voice-btn");
 
-let useVoice = false;
+/* ---------- ADD MESSAGE ---------- */
+function addMessage(message, sender) {
+  const msg = document.createElement("div");
+  msg.className = sender + " message";
 
-/* Add message */
-function addMessage(text, sender){
-  const div=document.createElement("div");
-  div.className="message "+sender;
-  div.innerHTML=`<div class="message-content">${text}</div>`;
-  chatWindow.appendChild(div);
-  chatWindow.scrollTop=chatWindow.scrollHeight;
-}
+  const avatar = document.createElement("img");
+  avatar.className = "avatar";
+  avatar.src = sender === "user"
+    ? "https://cdn-icons-png.flaticon.com/512/1946/1946429.png"
+    : "https://cdn-icons-png.flaticon.com/512/4712/4712100.png";
 
-/* Text to speech */
-function speak(text){
-  const speech=new SpeechSynthesisUtterance(text);
-  speech.lang="en-IN";
-  speech.rate=1;
-  window.speechSynthesis.speak(speech);
-}
+  const content = document.createElement("div");
+  content.className = "message-content";
+  content.innerHTML = message.replace(/\n/g, "<br>");
 
-/* Send text message */
-async function sendTextMessage(text){
-  addMessage(text,"user");
-
-  let reply="";
-  try{
-    const res = await fetch("ChatServlet",{
-      method:"POST",
-      headers:{"Content-Type":"application/x-www-form-urlencoded"},
-      body:"message="+encodeURIComponent(text)
-    });
-    reply=await res.text();
-  }catch(e){
-    reply="Server error";
+  /* ================= USER MESSAGE ================= */
+  if (sender === "user") {
+    msg.appendChild(content);
+    msg.appendChild(avatar);
+    chatWindow.appendChild(msg);
   }
 
-  addMessage(reply, "bot");
+  /* ================= BOT MESSAGE ================= */
+  else {
+    const wrapper = document.createElement("div");
+    wrapper.className = "bot-message-wrapper";
 
-  // ✅ Always keep cursor ready
-  setTimeout(() => userInput.focus(), 100);
-}
+    const botMsg = document.createElement("div");
+    botMsg.className = "bot message";
 
-/* Send voice message */
-async function sendVoiceMessage(text){
-  addMessage(text,"user");
+    const botAvatar = document.createElement("img");
+    botAvatar.className = "avatar";
+    botAvatar.src = "https://cdn-icons-png.flaticon.com/512/4712/4712100.png";
 
-  let reply="";
-  try{
-    const res = await fetch("VoiceServlet",{
-      method:"POST",
-      headers:{"Content-Type":"application/x-www-form-urlencoded"},
-      body:"message="+encodeURIComponent(text)
-    });
-    reply=await res.text();
-  }catch(e){
-    reply="Server error";
+    const botContent = document.createElement("div");
+    botContent.className = "message-content";
+    botContent.innerHTML = message.replace(/\n/g, "<br>");
+
+    botMsg.appendChild(botAvatar);
+    botMsg.appendChild(botContent);
+
+    // 🔁 REPEAT ICON (VOICE ONLY)
+    const repeatIcon = document.createElement("i");
+    repeatIcon.className = "fa-solid fa-rotate-right repeat-icon";
+
+    repeatIcon.onclick = function () {
+      speakText(message); // 🔊 VOICE REPEAT
+    };
+
+    wrapper.appendChild(botMsg);
+    wrapper.appendChild(repeatIcon);
+    chatWindow.appendChild(wrapper);
+
+    // 🔊 Speak when bot message first appears
+    speakText(message);
   }
 
-  addMessage(reply,"bot");
-  speak(reply);
-
-  // ✅ FORCE cursor after voice
-  setTimeout(() => userInput.focus(), 300);
+  chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
-/* Form submit */
-document.getElementById("input-area").addEventListener("submit",e=>{
+/* ---------- CREATE TYPING ANIMATION ---------- */
+function showTyping() {
+  const typingDiv = document.createElement("div");
+  typingDiv.className = "bot message typing";
+  typingDiv.innerHTML = `
+    <div class="message-content typing-dots">
+        <span></span><span></span><span></span>
+    </div>
+  `;
+  chatWindow.appendChild(typingDiv);
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+  return typingDiv;
+}
+
+/* ---------- SUBMIT MESSAGE ---------- */
+document.getElementById("input-area").addEventListener("submit", async e => {
   e.preventDefault();
-  const text=userInput.value.trim();
-  if(!text) return;
-  userInput.value="";
-  sendTextMessage(text);
+
+  const text = userInput.value.trim();
+  if (!text) return;
+
+  addMessage(text, "user");
+  userInput.value = "";
+  sendButton.disabled = true;
+
+  // SHOW TYPING
+  const typingDiv = showTyping();
+
+  let responseText = "";
+  try {
+      const response = await fetch("../ChatServlet", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: "message=" + encodeURIComponent(text)
+      });
+      responseText = await response.text();
+  } catch (err) {
+      responseText = "Error connecting to server.";
+  }
+
+  // REMOVE TYPING DOTS
+  typingDiv.remove();
+
+  // SHOW BOT MESSAGE
+addMessage(responseText, "bot");
+
+if (voiceMode) {
+  speak(htmlToSpeechText(responseText));
+}
+
+voiceMode = false;
+sendButton.disabled = false;
 });
 
-/* Speech recognition */
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-const recognition = new SpeechRecognition();
-recognition.lang = "en-IN";
-
-voiceBtn.onclick = () => {
-  userInput.blur();
-  voiceModal.style.display = "flex";
-  window.speechSynthesis.cancel();
-  recognition.start();
-};
-
-recognition.onresult = (e) => {
-  const spokenText = e.results[0][0].transcript;
-  voiceModal.style.display = "none";
-  sendVoiceMessage(spokenText);
-};
-
-recognition.onerror = () => {
-  voiceModal.style.display = "none";
-  setTimeout(() => userInput.focus(), 200);
-};
-
-recognition.onend = () => {
-  voiceModal.style.display = "none";
-  setTimeout(() => userInput.focus(), 200);
-};
-
-/* Auto focus */
-window.onload = () => userInput.focus();
-
-/* Enter to send */
+/* ---------- ENTER TO SEND ---------- */
 userInput.addEventListener("keydown", e => {
-  if(e.key === "Enter" && !e.shiftKey){
+  if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
-    document.getElementById("send-btn").click();
+    sendButton.click();
   }
 });
-</script>
 
+/* ---------- VOICE MODAL ---------- */
+voiceButton.addEventListener("click", () => {
+	voiceMode = true;
+
+
+  if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
+    alert("Speech recognition not supported in this browser");
+    return;
+  }
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = new SpeechRecognition();
+
+  recognition.lang = "en-IN";
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  voiceModal.style.display = "flex";
+
+  recognition.start();
+
+  recognition.onresult = async event => {
+    const spokenText = event.results[0][0].transcript;
+
+    voiceModal.style.display = "none";
+
+    // SHOW USER MESSAGE
+    addMessage(spokenText, "user");
+
+    // SHOW TYPING
+    const typingDiv = showTyping();
+
+    let botReply = "";
+    try {
+      const response = await fetch("../VoiceServlet", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "message=" + encodeURIComponent(spokenText)
+      });
+      botReply = await response.text();
+    } catch (e) {
+      botReply = "Sorry, I could not connect to the server.";
+    }
+
+    typingDiv.remove();
+    
+    addMessage(botReply, "bot");
+    speak(htmlToSpeechText(botReply));
+
+    voiceMode = false;
+
+  };
+
+  recognition.onerror = () => {
+	  recognition.stop();
+	  voiceMode = false;
+	  voiceModal.style.display = "none";
+	  alert("Voice recognition failed. Please try again.");
+	};
+
+});
+
+function speak(text) {
+	  if (!window.speechSynthesis || !text) return;
+
+	  if (window.speechSynthesis.speaking) {
+	    window.speechSynthesis.cancel();
+	  }
+
+	  const utterance = new SpeechSynthesisUtterance(text);
+	  utterance.lang = "en-IN";
+	  utterance.rate = 1.25;
+	  utterance.pitch = 1;
+
+	  window.speechSynthesis.speak(utterance);
+	}
+
+function startVoiceFromHardware() {
+	if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
+	    alert("Speech recognition not supported in this browser");
+	    return;
+	  }
+
+	  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+	  const recognition = new SpeechRecognition();
+
+	  recognition.lang = "en-IN";
+	  recognition.interimResults = false;
+	  recognition.maxAlternatives = 1;
+
+	  voiceModal.style.display = "flex";
+
+	  recognition.start();
+
+	  recognition.onresult = async event => {
+	    const spokenText = event.results[0][0].transcript;
+
+	    voiceModal.style.display = "none";
+
+	    // SHOW USER MESSAGE
+	    addMessage(spokenText, "user");
+
+	    // SHOW TYPING
+	    const typingDiv = showTyping();
+
+	    let botReply = "";
+	    try {
+	      const response = await fetch("../VoiceServlet", {
+	        method: "POST",
+	        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+	        body: "message=" + encodeURIComponent(spokenText)
+	      });
+	      botReply = await response.text();
+	    } catch (e) {
+	      botReply = "Sorry, I could not connect to the server.";
+	    }
+
+	    typingDiv.remove();
+	    
+	    addMessage(botReply, "bot");
+	    speak(htmlToSpeechText(botReply));
+
+	    voiceMode = false;
+
+	  };
+
+	  recognition.onerror = () => {
+		  recognition.stop();
+		  voiceMode = false;
+		  voiceModal.style.display = "none";
+		  alert("Voice recognition failed. Please try again.");
+		};
+		
+}
+
+let port;
+let reader;
+let serialConnected = false;
+
+let serialInitDone = false;
+
+//One-time user gesture (click anywhere on page)
+document.addEventListener("click", async () => {
+if (serialInitDone) return;
+
+if (!("serial" in navigator)) {
+ alert("Web Serial not supported. Use Chrome or Edge.");
+ return;
+}
+
+try {
+ port = await navigator.serial.requestPort();
+ await port.open({ baudRate: 115200 });
+
+ reader = port.readable.getReader();
+ serialConnected = true;
+ serialInitDone = true;
+
+ console.log("✅ Serial connected to ESP32");
+ // optional: toast / console only (no alert)
+
+ readESP32(); // start listening
+} catch (err) {
+ console.error(err);
+ alert("ESP32 connection failed");
+}
+}, { once: true });
+
+async function readESP32() {
+	  const decoder = new TextDecoder();
+
+	  while (serialConnected) {
+	    const { value, done } = await reader.read();
+	    if (done) break;
+
+	    const text = decoder.decode(value).trim();
+	    if (!text) continue;
+
+	    console.log("ESP32:", text);
+
+	    if (text.includes("M")) {
+
+	      if (ignoreFirstMicSignal) {
+	        console.log("Ignoring first mic trigger");
+	        ignoreFirstMicSignal = false;
+	        continue;
+	      }
+
+	      // ✅ Real touch-triggered mic start
+	      startVoiceFromHardware();
+	    }
+	  }
+	}
+
+
+</script>
 </body>
 </html>
