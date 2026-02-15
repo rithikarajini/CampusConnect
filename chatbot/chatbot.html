@@ -63,7 +63,7 @@ html, body {
 }
 .message {
   display: flex;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   margin-right: 150px;
   animation: fadeIn .3s forwards;
   opacity: 0;
@@ -177,6 +177,20 @@ html, body {
   animation: blink 1.2s infinite;
   opacity: .4;
 }
+
+/* Repeat icon (ONLY ICON – NO FUNCTION) */
+.repeat-icon {
+  margin-left: 204px;
+  margin-top: 1px;
+  font-size: 15px;
+  color: #666;
+  cursor: pointer;
+}
+
+.repeat-icon:hover {
+  color: #000;
+}
+
 </style>
 </head>
 
@@ -218,6 +232,49 @@ html, body {
 </div>
 <button id="enable-serial" style="display:none;"></button>
 <script>
+
+
+function speakText(text) {
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "en-IN";
+  utterance.rate = 1;
+  utterance.pitch = 1;
+  utterance.volume = 1;
+
+  window.speechSynthesis.speak(utterance);
+}
+let lastBotReply = "";
+
+function repeatLastMessage() {
+  if (lastBotReply && lastBotReply.trim() !== "") {
+    window.speechSynthesis.cancel(); // stop current speech
+    speak(lastBotReply);
+  } else {
+    console.log("No message to repeat");
+  }
+}
+
+/* ---------- BEEP SOUND ---------- */
+function playBeep() {
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  const oscillator = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+
+  oscillator.type = "sine";       // smooth beep
+  oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); // pitch
+
+  gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime); // volume
+
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  oscillator.start();
+  oscillator.stop(audioCtx.currentTime + 0.15); // duration (0.15 sec)
+}
+
 let ignoreFirstMicSignal = true;
 let voiceMode = false;
 
@@ -253,17 +310,50 @@ function addMessage(message, sender) {
 
   const content = document.createElement("div");
   content.className = "message-content";
-  content.innerHTML = message.replace(/\n/g, "<br>"); 
+  content.innerHTML = message.replace(/\n/g, "<br>");
 
+  /* ================= USER MESSAGE ================= */
   if (sender === "user") {
     msg.appendChild(content);
     msg.appendChild(avatar);
-  } else {
-    msg.appendChild(avatar);
-    msg.appendChild(content);
+    chatWindow.appendChild(msg);
   }
 
-  chatWindow.appendChild(msg);
+  /* ================= BOT MESSAGE ================= */
+  else {
+    const wrapper = document.createElement("div");
+    wrapper.className = "bot-message-wrapper";
+
+    const botMsg = document.createElement("div");
+    botMsg.className = "bot message";
+
+    const botAvatar = document.createElement("img");
+    botAvatar.className = "avatar";
+    botAvatar.src = "https://cdn-icons-png.flaticon.com/512/4712/4712100.png";
+
+    const botContent = document.createElement("div");
+    botContent.className = "message-content";
+    botContent.innerHTML = message.replace(/\n/g, "<br>");
+
+    botMsg.appendChild(botAvatar);
+    botMsg.appendChild(botContent);
+
+    // 🔁 REPEAT ICON (VOICE ONLY)
+    const repeatIcon = document.createElement("i");
+    repeatIcon.className = "fa-solid fa-rotate-right repeat-icon";
+
+    repeatIcon.onclick = function () {
+      speakText(message); // 🔊 VOICE REPEAT
+    };
+
+    wrapper.appendChild(botMsg);
+    wrapper.appendChild(repeatIcon);
+    chatWindow.appendChild(wrapper);
+
+    // 🔊 Speak when bot message first appears
+   
+  }
+
   chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
@@ -312,6 +402,8 @@ document.getElementById("input-area").addEventListener("submit", async e => {
 
   // SHOW BOT MESSAGE
 addMessage(responseText, "bot");
+lastBotReply = responseText;
+
 
 if (voiceMode) {
   speak(htmlToSpeechText(responseText));
@@ -349,6 +441,7 @@ voiceButton.addEventListener("click", () => {
   voiceModal.style.display = "flex";
 
   recognition.start();
+  playBeep();
 
   recognition.onresult = async event => {
     const spokenText = event.results[0][0].transcript;
@@ -376,6 +469,7 @@ voiceButton.addEventListener("click", () => {
     typingDiv.remove();
     
     addMessage(botReply, "bot");
+    lastBotReply = botReply;
     speak(htmlToSpeechText(botReply));
 
     voiceMode = false;
@@ -422,6 +516,7 @@ function startVoiceFromHardware() {
 	  voiceModal.style.display = "flex";
 
 	  recognition.start();
+	  playBeep();
 
 	  recognition.onresult = async event => {
 	    const spokenText = event.results[0][0].transcript;
@@ -449,6 +544,7 @@ function startVoiceFromHardware() {
 	    typingDiv.remove();
 	    
 	    addMessage(botReply, "bot");
+	    lastBotReply = botReply;
 	    speak(htmlToSpeechText(botReply));
 
 	    voiceMode = false;
@@ -463,6 +559,8 @@ function startVoiceFromHardware() {
 		};
 		
 }
+
+
 
 let port;
 let reader;
@@ -496,7 +594,6 @@ try {
  alert("ESP32 connection failed");
 }
 }, { once: true });
-
 async function readESP32() {
 	  const decoder = new TextDecoder();
 
@@ -509,6 +606,7 @@ async function readESP32() {
 
 	    console.log("ESP32:", text);
 
+	    // -------- SINGLE TAP --------
 	    if (text.includes("M")) {
 
 	      if (ignoreFirstMicSignal) {
@@ -517,8 +615,13 @@ async function readESP32() {
 	        continue;
 	      }
 
-	      // ✅ Real touch-triggered mic start
 	      startVoiceFromHardware();
+	    }
+
+	    // -------- DOUBLE TAP --------
+	    if (text.includes("R")) {
+	      console.log("Repeat triggered");
+	      repeatLastMessage();
 	    }
 	  }
 	}
