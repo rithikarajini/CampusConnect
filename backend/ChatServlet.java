@@ -86,7 +86,7 @@ public class ChatServlet extends HttpServlet {
 
             case "fees_query":
                 return processFees(rasa, session);
-
+           
             case "greet":
                 return "Hello! How can I help you today?";
 

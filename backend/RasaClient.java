@@ -17,7 +17,8 @@ public class RasaClient {
         public Map<String, String> entities = new HashMap<>();
     }
 
-    public static RasaResult interpret(String text) {
+    public static RasaResult interpret(String text)	{
+
 
         RasaResult result = new RasaResult();
 
