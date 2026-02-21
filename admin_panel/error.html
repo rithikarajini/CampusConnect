@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login Error - CampusConnect</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #b7c2a3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Logo */
+  .logo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    height: 70px;
+  }
+
+  /* Brand Title */
+  .brand {
+    margin-top: 40px;
+    font-size: 48px;
+    font-weight: 800;
+  }
+
+  .brand .campus {
+    color: #1f5568;
+  }
+
+  .brand .connect {
+    color: #7ac142;
+  }
+
+  /* Error Box */
+  .container {
+    margin-top: 80px;
+    background: #f2f2f2;
+    padding: 40px;
+    width: 400px;
+    border-radius: 14px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+
+  .container h2 {
+    color: #1f5568;
+    margin-bottom: 20px;
+  }
+
+  .error-text {
+    color: #cc0000;
+    font-weight: 600;
+    margin-bottom: 25px;
+  }
+
+  .btn {
+    background-color: #1f5568;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn:hover {
+    background-color: #143a50;
+  }
+</style>
+</head>
+
+<body>
+
+<img src="logo.png" class="logo" alt="Logo">
+
+<div class="brand">
+  <span class="campus">Campus</span>
+  <span class="connect">Connect</span>
+</div>
+
+<div class="container">
+  <h2>Login Failed</h2>
+  <div class="error-text">
+    Invalid Username or Password
+  </div>
+
+  <a href="admin_panel/logincbhtml.html" class="btn">Back to Login</a>
+</div>
+
+</body>
+</html>
