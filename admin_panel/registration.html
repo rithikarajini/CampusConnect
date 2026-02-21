@@ -1,233 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Admin Registration - CampusConnect</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registration - CampusConnect</title>
 <style>
   html, body {
-    height: 100%;
-    margin: 0; padding: 0;
+    height: 100%; margin: 0; padding: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-image: url('WhatsApp-Image-2025-11-16-at-18.36.25_8c651a7b.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-color:  #ccd6b4;
-    min-height: 100vh;
-    position: relative;
+    background-size: cover; background-position: center;
+    background-repeat: no-repeat; background-attachment: fixed;
+    background-color: #cad3b3;  min-height: 100vh;
   }
 
-  /* Logo fixed top-left */
   #logo-campus {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    height: 100px;
-    width: auto;
-    object-fit: contain;
-    z-index: 1000;
-  }
+    position: fixed; top: 20px; left: 20px;
+    height: 100px; width: auto; object-fit: contain;
+    z-index: 1000;  
+      }
 
-  /* Brand text fixed and centered horizontally */
   #brand-text {
-    position: fixed;
-    top: 45px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 3rem;
-    font-weight: 900;
-    color: #205B6F;
+    position: fixed; top: 45px; left: 50%;
+    transform: translateX(-50%); font-size: 3rem;
+    font-weight: 900; color: #205B6F;
     font-family: 'Segoe UI', Verdana, sans-serif;
-    user-select: none;
-    z-index: 1000;
-    white-space: nowrap;
+    user-select: none; z-index: 1000; white-space: nowrap;
   }
-  #brand-text .campus {
-    color: #205B6F;
-    margin-right: 6px;
-  }
-  #brand-text .connect {
-    color: #8cc63f;
-  }
+  #brand-text .campus { color: #205B6F; margin-right: 6px; }
+  #brand-text .connect { color: #8cc63f; }
 
-  /* Main content and form */
   #main-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100vw;
-    min-height: 100vh;
-    justify-content: center;
-    padding-top: 140px;
-    box-sizing: border-box;
+    display: flex; flex-direction: column;
+    align-items: center; width: 100vw;
+    min-height: 100vh; justify-content: center;
+    padding-top: 140px; box-sizing: border-box;
   }
 
   #register-container {
-    background: #fff;
-    padding: 32px 40px 24px 40px;
-    border-radius: 12px;
-    box-shadow: 0 6px 24px rgba(32,91,111,0.10);
-    width: 340px;
-    z-index: 2;
+    background: #fff; padding: 32px 40px 24px 40px;
+    border-radius: 12px; box-shadow: 0 6px 24px rgba(32,91,111,0.10);
+    width: 340px; z-index: 2;
   }
 
   #register-container h2 {
-    margin-bottom: 22px;
-    color: #205B6F;
-    text-align: center;
-    font-size: 1.42rem;
-    font-weight: 700;
+    margin-bottom: 22px; color: #205B6F;
+    text-align: center; font-size: 1.42rem; font-weight: 700;
   }
 
   label {
-    display: block;
-    margin-bottom: 7px;
-    color: #205B6F;
-    font-weight: 600;
-    letter-spacing: 0.2px;
+    display: block; margin-bottom: 7px;
+    color: #205B6F; font-weight: 600; letter-spacing: 0.2px;
   }
 
-  input[type="text"], input[type="password"], input[type="email"] {
-    width: 100%;
-    padding: 10px 14px;
-    margin-bottom: 17px;
-    border: 1.5px solid #8cc63f;
-    border-radius: 6px;
-    font-size: 16px;
-    box-sizing: border-box;
+  input[type="number"], input[type="text"], input[type="email"], input[type="password"] {
+    width: 100%; padding: 10px 14px; margin-bottom: 17px;
+    border: 1.5px solid #8cc63f; border-radius: 6px;
+    font-size: 16px; box-sizing: border-box;
     transition: border-color 0.2s;
   }
 
   input:focus {
-    border-color: #205B6F;
-    outline: none;
+    border-color: #205B6F; outline: none;
   }
 
   button {
-    width: 100%;
-    padding: 12px 0;
-    background: #205B6F;
-    color: #fff;
-    font-size: 18px;
-    font-weight: 700;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.2s;
-    margin-top: 8px;
+    width: 100%; padding: 12px 0; background: #205B6F;
+    color: #fff; font-size: 18px; font-weight: 700;
+    border: none; border-radius: 8px; cursor: pointer;
+    transition: background 0.2s; margin-top: 8px;
   }
 
-  button:hover {
-    background: #143a50;
-  }
+  button:hover { background: #143a50; }
 
   .error-message {
-    color: #b33;
-    font-size: 14px;
-    margin-bottom: 12px;
-    display: none;
-    text-align: center;
-  }
-
-  .success-message {
-    color: #2d7a2d;
-    font-size: 14px;
-    margin-bottom: 12px;
-    display: none;
-    text-align: center;
-  }
-
-  .link {
-    text-align: center;
-    margin-top: 12px;
-    font-size: 15px;
-  }
-
-  .link a {
-    color: #205B6F;
-    text-decoration: none;
-    font-weight: 600;
-  }
-
-  .link a:hover {
-    text-decoration: underline;
+    color: #b33; font-size: 14px; margin-bottom: 12px;
+    display: none; text-align: center;
   }
 </style>
 </head>
 <body>
-
 <img id="logo-campus" src="clogo.png" alt="CampusConnect Logo" />
 
-<div id="brand-text" aria-label="CampusConnect Brand">
+<div id="brand-text">
   <span class="campus">Campus</span><span class="connect">Connect</span>
 </div>
 
 <div id="main-content">
-  <div id="register-container" role="main" aria-label="Admin Registration Form">
-    <h2>Admin Registration</h2>
-    <form id="register-form" aria-describedby="register-status" novalidate action="Registrationservlet" method="post">
+  <div id="register-container">
+    <h2>Registration</h2>
+    <!-- ✅ GET method to match your doGet() -->
+    <form method="post" action="/demo3/Registrationservlet">
+      <label for="id">ID</label>
+      <input type="number" id="id" name="id" min="1" required placeholder="Enter your id" />
+
       <label for="username">Username</label>
-      <input type="text" id="username" name="username" aria-required="true" autocomplete="username" placeholder="Enter username" />
+      <input type="text" id="username" name="username" required placeholder="Enter username" />
 
       <label for="email">Email</label>
-      <input type="email" id="email" name="email" aria-required="true" autocomplete="email" placeholder="Enter email address" />
+      <input type="email" id="email" name="email" required placeholder="Enter email address" />
 
       <label for="password">Password</label>
-      <input type="password" id="password" name="password" aria-required="true" autocomplete="new-password" placeholder="Enter password" />
+      <input type="password" id="password" name="password" required placeholder="Enter password" />
 
-      <label for="confirm-password">Confirm Password</label>
-      <input type="password" id="confirm-password" name="confirm-password" aria-required="true" autocomplete="new-password" placeholder="Confirm password" />
+      <label for="confirm_password">Confirm Password</label>
+      <input type="password" id="confirm_password" name="confirm_password" required placeholder="Confirm password" />
 
-      <div id="register-status" class="error-message" role="alert">Please fill all fields correctly</div>
-      <div id="register-success" class="success-message" role="status">Registration successful!</div>
-	<button>Register</button>
+      <button type="submit">Register</button>
     </form>
-
-    <div class="link">
-      Already have an account? <a href="login.html">Login here</a>
-    </div>
   </div>
 </div>
-
-<script>
-  const registerForm = document.getElementById('register-form');
-  const statusMessage = document.getElementById('register-status');
-  const successMessage = document.getElementById('register-success');
-
-  registerForm.addEventListener('submit', e => {
-    e.preventDefault();
-
-    const username = registerForm.username.value.trim();
-    const email = registerForm.email.value.trim();
-    const password = registerForm.password.value.trim();
-    const confirmPassword = registerForm['confirm-password'].value.trim();
-
-    // Validation
-    if (!username || !email || !password || !confirmPassword) {
-      statusMessage.textContent = 'All fields are required';
-      statusMessage.style.display = 'block';
-      successMessage.style.display = 'none';
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      statusMessage.textContent = 'Passwords do not match';
-      statusMessage.style.display = 'block';
-      successMessage.style.display = 'none';
-      return;
-    }
-
-    statusMessage.style.display = 'none';
-    successMessage.style.display = 'block';
-
-    // TODO: Add actual registration logic here
-    setTimeout(() => {
-      window.location.href = 'home.html'; // Redirect after registration
-    }, 1500);
-  });
-</script>
-
 </body>
 </html>
