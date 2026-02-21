@@ -1,9 +1,16 @@
 import jakarta.servlet.annotation.WebServlet;
+
+
 import jakarta.servlet.http.*;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.io.File;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
+
 import java.util.*;
 
 @WebServlet("/ChatServlet")
@@ -18,6 +25,19 @@ public class ChatServlet extends HttpServlet {
         }
 
         String normalized = userMsg.toLowerCase();
+        normalized = normalized.replace("departments", "dept");
+        normalized = normalized.replace("department", "dept");
+
+
+     // ===== RULES QUERY =====
+        if (normalized.contains("rules") || normalized.contains("college rules")) {
+            session.removeAttribute("neededInfo");
+            session.removeAttribute("pendingIntent");
+            return new ChatServlet().processRules(userMsg);
+        }
+
+
+                /* ==================== */
 
         // 🔥 HARD COURSE CODE ROUTE (works for voice + typing)
         if (normalized.contains("course code")) {
@@ -38,7 +58,7 @@ public class ChatServlet extends HttpServlet {
         RasaClient.RasaResult rasa = RasaClient.interpret(userMsg);
         return new ChatServlet().handleIntent(rasa, session);
     }
-
+     
 
 
     /* ===================== ENTRY ===================== */
@@ -71,32 +91,49 @@ public class ChatServlet extends HttpServlet {
   	        RasaClient.RasaResult rasa = RasaClient.interpret(userMsg);
   	        return new ChatServlet().handleIntent(rasa, session);
   	    }
+  	  
   	}
 
     /* ===================== INTENT ROUTER ===================== */
-    private String handleIntent(RasaClient.RasaResult rasa, HttpSession session) {
+  	private String handleIntent(RasaClient.RasaResult rasa, HttpSession session) {
 
-        if (rasa == null || rasa.intent == null)
-            return "I couldn’t understand that. Please try again.";
+  	    if (rasa == null || rasa.intent == null)
+  	        return "I couldn’t understand that. Please try again.";
 
-        switch (rasa.intent) {
+  	    switch (rasa.intent) {
 
-            case "exam_schedule":
-                return processExam(rasa, session);
+  	        case "exam_schedule":
+  	            session.setAttribute("pendingIntent", "exam_schedule");
+  	            return processExam(rasa, session);
 
-            case "fees_query":
-                return processFees(rasa, session);
-           
-            case "greet":
-                return "Hello! How can I help you today?";
+  	        case "fees_query":
+  	            session.setAttribute("pendingIntent", "fees_query");
+  	            return processFees(rasa, session);
 
-            case "goodbye":
-                return "Thank you! Feel free to ask anytime.";
+  	        case "faculty_query":
+  	            session.setAttribute("pendingIntent", "faculty_query");
+  	            return processFaculty(rasa, session);
 
-            default:
-                return "I’m not sure I understood that. Can you rephrase?";
-        }
-    }
+  	      case "event_query":
+
+  	        // 🔥 LIST ALL EVENTS SPECIAL CASE
+  	        
+
+  	        // 🔥 NORMAL SINGLE EVENT FLOW
+  	        session.setAttribute("pendingIntent", "event_query");
+  	        return processEvent(rasa, session);
+
+
+  	        case "greet":
+  	            return "Hello! How can I help you today?";
+
+  	        case "goodbye":
+  	            return "Thank you! Feel free to ask anytime.";
+
+  	        default:
+  	            return "I’m not sure I understood that. Can you rephrase?";
+  	    }
+  	}
 
     /* ===================== FOLLOW-UP ===================== */
     private String handleFollowUp(String msg, HttpSession session) {
@@ -121,6 +158,8 @@ public class ChatServlet extends HttpServlet {
             case "semester" -> r.entities.put("semester", msg);
 
             case "year" -> r.entities.put("year", msg);
+            
+            case "event_name" -> r.entities.put("eventname", msg);
 
             case "department" -> r.entities.put("dept", msg);
 
@@ -146,15 +185,45 @@ public class ChatServlet extends HttpServlet {
                 
             case "course_code":
                 return processCourseCode(r, session);
+                
+            case "faculty_query":
+                return processFees(r, session);
+                
 
+            case "event_query":
+                return processEvent(r, session);
+                
 
-           /* case "event_query":
-                return processEvent(r, session);*/
+                
 
             default:
                 return "I have the information, but I’m not sure how to process it.";
         }
     }
+        /* ===================== RULES ===================== */
+    private String processRules(String userMsg) {
+
+        String msg = userMsg.toLowerCase();
+
+        // valid rule questions
+        if (msg.contains("rules") || msg.contains("college rules")) {
+
+            return "<b>Campus Rules</b><br><hr>"
+                 + "1. Students must carry ID card.<br>"
+                 + "2. Mobile phones are not allowed inside the college campus.<br>"
+                 + "3. Minimum 85% attendance is mandatory.<br>"
+                 + "4. Ragging is strictly prohibited.<br>"
+                 + "5. Follow college dress code.<br>"
+                 + "6. Late entry is not allowed without permission.<br>"
+                 + "7. Library books must be returned on time.<br>"
+                 + "<br><i>Contact office for more details.</i>";
+        }
+
+        // ❌ wrong question
+        return "No details found.";
+    }
+
+            
 
 
 
@@ -209,6 +278,293 @@ public class ChatServlet extends HttpServlet {
                 + "<b>Amount:</b> ₹" + f.amount + "<br>"
                 + "<b>Last Date:</b> " + f.lastDate;
     }
+    
+    /* ===================== FACULTY===================== */
+    private String processFaculty(RasaClient.RasaResult rasa, HttpSession session) {
+
+        /* ===== CLEAR PREVIOUS INTENT FLAGS ===== */
+        session.removeAttribute("neededInfo");
+        session.removeAttribute("pendingIntent");
+
+        /* ===== CLEAR OTHER INTENT DATA ===== */
+        session.removeAttribute("fee_year");
+        session.removeAttribute("fee_semester");
+        session.removeAttribute("semester");
+        session.removeAttribute("classYear");
+        session.removeAttribute("examType");
+        session.removeAttribute("date");
+        session.removeAttribute("subject");
+
+        /* ===== LOAD FROM SESSION ===== */
+        String dept = (String) session.getAttribute("faculty_dept");
+        String designation = (String) session.getAttribute("faculty_designation");
+        String firstname = (String) session.getAttribute("faculty_firstname");
+        String lastname = (String) session.getAttribute("faculty_lastname");
+
+        /* ===== EXTRACT FROM RASA ===== */
+        String d = extractDept(rasa);
+        if (d != null) {
+            dept = d;
+            session.setAttribute("faculty_dept", d);
+        }
+
+        String desig = extractDesignation(rasa);
+        if (desig != null) {
+            designation = desig.trim().toLowerCase();
+            session.setAttribute("faculty_designation", designation);
+        }
+
+        String fn = extractFirstName(rasa);
+        if (fn != null) {
+            firstname = fn;
+            session.setAttribute("faculty_firstname", fn);
+        }
+
+        String ln = extractLastName(rasa);
+        if (ln != null) {
+            lastname = ln;
+            session.setAttribute("faculty_lastname", ln);
+        }
+
+        /* =====================================================
+           ❌ NOTHING EXTRACTED → ERROR (FEES STYLE)
+           ===================================================== */
+        if (dept == null && designation == null && firstname == null && lastname == null) {
+            clearFaculty(session);
+            return "Sorry, I couldn't understand your faculty request.";
+        }
+
+       
+
+        /* =====================================================
+           ✅ CASE 2: HOD OF A SPECIFIC DEPARTMENT (BCA, CSE, etc.)
+           ===================================================== */
+        if ("hod".equalsIgnoreCase(designation) && dept != null) {
+
+            Integer deptId = DButil.getDeptIdByName(dept);
+            if (deptId == null) {
+                clearFaculty(session);
+                return "Invalid department.";
+            }
+
+            List<DButil.Faculty> list =
+                    DButil.getFaculty(null, null, "hod", deptId);
+
+            if (list == null || list.isEmpty()) {
+                clearFaculty(session);
+                return "No HOD found for " + dept + " department.";
+            }
+
+            clearFaculty(session);
+            return formatFaculty(list);
+        }
+
+        /* =====================================================
+           ASK FOR DEPARTMENT (NON-HOD)
+           ===================================================== */
+        if (designation != null && !"hod".equalsIgnoreCase(designation) && dept == null) {
+            return askFaculty(session, "department", "Which department?");
+        }
+
+        /* ===== CONVERT DEPT TO ID ===== */
+        Integer deptId = null;
+        if (dept != null) {
+            deptId = DButil.getDeptIdByName(dept);
+            if (deptId == null) {
+                clearFaculty(session);
+                return "Invalid department.";
+            }
+        }
+
+        /* ===== FETCH FACULTY ===== */
+        List<DButil.Faculty> list =
+                DButil.getFaculty(firstname, lastname, designation, deptId);
+
+        if (list == null || list.isEmpty()) {
+            clearFaculty(session);
+            return "No faculty details found.";
+        }
+
+        clearFaculty(session);
+        return formatFaculty(list);
+    }
+    private String formatFaculty(List<DButil.Faculty> list) {
+        StringBuilder sb = new StringBuilder("<b>Faculty Details</b><br><hr>");
+
+        for (DButil.Faculty f : list) {
+            sb.append("<b>Name:</b> ")
+              .append(f.Firstname).append(" ").append(f.lastname).append("<br>")
+              .append("<b>Designation:</b> ").append(f.designation).append("<br>")
+              .append("<b>Department:</b> ").append(f.department).append("<br><br>");
+        }
+        return sb.toString();
+    }
+    
+    
+    
+    /* ===================== EVENT===================== */
+    private String processEvent(RasaClient.RasaResult rasa, HttpSession session) {
+    	
+    	System.out.println("===== PROCESS EVENT CALLED =====");
+    	System.out.println("Session ID: " + session.getId());
+
+
+        String eventName = (String) session.getAttribute("event_name");
+        String dept = (String) session.getAttribute("department");
+        String category = (String) session.getAttribute("rule_category");
+
+        // Extract entities from Rasa
+        String en = extractEventName(rasa);
+        if (en != null) {
+            eventName = en.trim().toLowerCase();
+            session.setAttribute("event_name", eventName);
+        }
+
+        String d = extractDept(rasa);
+        if (d != null) {
+            dept = d.trim().toLowerCase();
+            session.setAttribute("department", dept);
+        }
+
+        
+
+        String rc = extractRuleCategory(rasa);
+        if (rc != null) {
+        	category = rc.trim().substring(0,1).toUpperCase() 
+        	          + rc.trim().substring(1).toLowerCase();
+            session.setAttribute("rule_category", category);
+        }
+        System.out.println("Saved Category: " + category);
+
+
+        
+                // ================= RULES BLOCK =================
+     
+        if (category != null) {
+
+            if (eventName == null)
+                return askEvent(session, "event_name", "Which event?");
+            if (dept == null)
+                return askEvent(session, "department", "Which department?");
+
+            Integer deptId = DButil.getDeptIdByName(dept);
+            if (deptId == null)
+                return "Invalid department.";
+
+            Integer eventId = DButil.getEventId(eventName, deptId);
+            if (eventId == null)
+                return "Event not found.";
+
+            // 🔥 ADD DEBUG HERE
+            System.out.println("===== DEBUG RULE BLOCK =====");
+            System.out.println("Event Name: " + eventName);
+            System.out.println("Department: " + dept);
+            System.out.println("Category: " + category);
+            System.out.println("Event ID: " + eventId);
+
+            List<DButil.Rule> rules = DButil.getRules(eventId, category);
+
+            if (rules == null || rules.isEmpty())
+                return "No rules found for this category.";
+
+            clearEvent(session);
+            session.removeAttribute("rule_category");
+
+            return formatRules(eventName, category, rules);
+        }
+
+
+        // ================= NORMAL EVENT FLOW =================
+        if (eventName == null)
+            return askEvent(session, "event_name", "Which event?");
+        if (dept == null)
+            return askEvent(session, "department", "Which department?");
+
+        Integer deptId = DButil.getDeptIdByName(dept);
+        if (deptId == null)
+            return "Invalid department.";
+
+        List<DButil.Event> list = DButil.getEvent(eventName, deptId);
+
+        if (list.isEmpty())
+            return "No event details found.";
+
+        clearEvent(session);
+        String contextPath = session.getServletContext().getContextPath();
+        return formatEvent(list, contextPath);
+    }
+    
+    
+
+    // ================= FORMAT RULES =================
+    private String formatRules(String eventName,
+                               String category,
+                               List<DButil.Rule> rules) {
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("<b>")
+          .append(category.toUpperCase())
+          .append(" Rules for ")
+          .append(eventName.toUpperCase())
+          .append("</b><br><hr>");
+
+        for (DButil.Rule r : rules) {
+            sb.append(r.ruleNo)
+              .append(". ")
+              .append(r.ruleText)
+              .append("<br>");
+        }
+
+        return sb.toString();
+    }
+    
+    
+
+
+
+
+    private String formatEvent(List<DButil.Event> list, String contextPath) {
+
+        StringBuilder sb = new StringBuilder("<b>Event Details</b><br><hr>");
+
+        for (DButil.Event e : list) {
+
+            sb.append("<b>Event Name:</b> ").append(e.eventName).append("<br>")
+              .append("<b>Department:</b> ").append(e.department).append("<br>")
+              .append("<b>Year:</b> ").append(e.year).append("<br>")
+              .append("<b>Date:</b> ").append(e.eventDate).append("<br>");
+
+            if (e.rulebook != null && !e.rulebook.isBlank()) {
+                sb.append("<b>Rulebook:</b> ")
+                  .append("<a href='")
+                  .append(contextPath)
+                  .append("/")
+                  .append(e.rulebook)
+                  .append("' target='_blank'>open Rulebook</a><br>");
+            }
+
+            sb.append("<hr>");
+        }
+    
+        return sb.toString();
+    
+        
+    }
+    
+    
+    
+
+
+    
+        
+        
+    
+
+
+
+
+    
 
     /* ===================== EXAMS ===================== */
     private String processCourseCode(RasaClient.RasaResult rasa, HttpSession session) {
@@ -307,7 +663,8 @@ public class ChatServlet extends HttpServlet {
             date = dt;
             session.setAttribute("date", dt);
         }
-
+        
+        
      
         
        
@@ -441,11 +798,31 @@ public class ChatServlet extends HttpServlet {
         s.setAttribute("pendingIntent", "course_code");
         return msg;
     }
+    
+    
+    private String askFaculty(HttpSession session, String needed, String msg) {
+        session.setAttribute("neededInfo", needed);
+        session.setAttribute("pendingIntent", "faculty_query");
+        return msg;
+    }
+    
+    private String askEvent(HttpSession session, String needed, String msg) {
+        session.setAttribute("neededInfo", needed);
+        session.setAttribute("pendingIntent", "event_query");
+        return msg;
+    }
+
+
 
     private String resetCourseCode(HttpSession s, String msg) {
         clearCourseCode(s);
         return msg;
     }
+    private String resetFaculty(HttpSession session, String msg) {
+        clearFaculty(session);
+        return msg;
+    }
+
 
     private void clearCourseCode(HttpSession s) {
         s.removeAttribute("cc_subject");
@@ -453,6 +830,15 @@ public class ChatServlet extends HttpServlet {
         s.removeAttribute("neededInfo");
         s.removeAttribute("pendingIntent");
     }
+    private void clearFaculty(HttpSession session) {
+        session.removeAttribute("faculty_dept");
+        session.removeAttribute("faculty_designation");
+        session.removeAttribute("faculty_firstname");
+        session.removeAttribute("faculty_lastname");
+        session.removeAttribute("neededInfo");
+        session.removeAttribute("pendingIntent");
+    }
+
 
     private String ask(HttpSession s, String need, String msg) {
         s.setAttribute("neededInfo", need);
@@ -503,6 +889,58 @@ public class ChatServlet extends HttpServlet {
             return normalizeExamType(r.entities.get("examType"));
         return normalizeExamType(r.text);
     }
+    private String extractDept(RasaClient.RasaResult r) {
+
+        if (r.entities == null || !r.entities.containsKey("dept"))
+            return null;
+
+        Object val = r.entities.get("dept");
+
+        // If already plain string
+        String dept = val.toString().toLowerCase();
+
+        // 🔥 remove [ ] if present
+        dept = dept.replace("[", "").replace("]", "").trim();
+
+        return dept;
+    }
+    private String extractDesignation(RasaClient.RasaResult r) {
+        if (r.entities != null && r.entities.containsKey("designation"))
+            return r.entities.get("designation").toString().toLowerCase();
+        return null;
+    }
+    private String extractFirstName(RasaClient.RasaResult r) {
+        if (r.entities != null && r.entities.containsKey("firstname"))
+            return r.entities.get("firstname").toString();
+        return null;
+    }
+    private String extractLastName(RasaClient.RasaResult r) {
+        if (r.entities != null && r.entities.containsKey("lastname"))
+            return r.entities.get("lastname").toString();
+        return null;
+    }
+    
+    private String extractName(RasaClient.RasaResult r) {
+        if (r.entities != null && r.entities.containsKey("name"))
+            return r.entities.get("name").toString().toLowerCase();
+        return null;
+    }
+    
+    private String extractRulebook(RasaClient.RasaResult r) {
+        if (r.entities != null && r.entities.containsKey("rulebook"))
+            return r.entities.get("rulebook").toString().toLowerCase();
+        return null;
+    }
+    
+        
+    
+        
+
+    
+
+
+
+
 
     private String normalizeExamType(String s) {
         if (s == null) return null;
@@ -551,6 +989,52 @@ public class ChatServlet extends HttpServlet {
         String s = r.entities.get("subject");
         return (s == null || s.isBlank()) ? null : s.toLowerCase();
     }
+    
+   
+    
+    private void clearEvent(HttpSession session) {
+        session.removeAttribute("event_name");
+        session.removeAttribute("event_date");
+        session.removeAttribute("department");
+        session.removeAttribute("year");
+
+        session.removeAttribute("neededInfo");
+        session.removeAttribute("pendingIntent");
+    }
+    
+    private String extractEventName(RasaClient.RasaResult r) {
+        if (r != null && r.entities != null) {
+            if (r.entities.containsKey("eventname"))
+                return r.entities.get("eventname").toString().toLowerCase();
+            if (r.entities.containsKey("event"))
+                return r.entities.get("event").toString().toLowerCase();
+        }
+        return null;
+    }
+    
+    private String extractRuleCategory(RasaClient.RasaResult r) {
+
+        if (r != null && r.entities != null) {
+
+            System.out.println("Entities Map: " + r.entities);
+
+            if (r.entities.containsKey("rulecategory"))
+                return r.entities.get("rulecategory").toString().toLowerCase();
+
+            if (r.entities.containsKey("rulecategory"))
+                return r.entities.get("rulecategory").toString().toLowerCase();
+        }
+
+        return null;
+    }
+
+
+       
+    
+
+
+    
+    
 
     private LocalDate extractDate(RasaClient.RasaResult r) {
 
