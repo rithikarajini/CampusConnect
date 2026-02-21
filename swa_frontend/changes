@@ -1,0 +1,274 @@
+event.html
+     <div>
+      <p>Year</p>
+      <input type="text" id="year" name="year">
+    </div>
+    
+    <div>
+      <p>Rules</p>
+      <textarea name="rules" rows="4" cols="40" placeholder="Enter rules"></textarea>
+         </div>
+
+        -----------ithu event html la vara script la podu---------
+
+        <script>
+const params = new URLSearchParams(window.location.search);
+
+const eventName = params.get("event_name");
+const eventDate = params.get("event_date");
+const deptId    = params.get("dept_id");
+
+if (eventName && eventDate && deptId) {
+  fetch(
+    "../home_event?" +
+    "event_name=" + encodeURIComponent(eventName) +
+    "&event_date=" + encodeURIComponent(eventDate) +
+    "&dept_id=" + encodeURIComponent(deptId)
+  )
+    .then(res => {
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    })
+    .then(d => {
+      document.querySelector("[name=event_id]").value = d.event_id; // internal only
+      document.querySelector("[name=event_name]").value = d.event_name;
+      document.querySelector("[name=event_date]").value = d.event_date;
+      document.querySelector("[name=year]").value = d.year;
+      document.querySelector("[name=dept]").value = d.dept_id;
+    })
+}
+
+</script>
+
+home_event.java
+  /* ================= GET ================= */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String eventName = request.getParameter("event_name");
+        String eventDate = request.getParameter("event_date");
+        String deptIdStr = request.getParameter("dept_id");
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASS)) {
+
+            /* ==================================================
+               AJAX MODE → RETURN JSON (NO HTML)
+               ================================================== */
+            if (eventName != null && eventDate != null && deptIdStr != null) {
+
+                response.setContentType("application/json");
+                PrintWriter out = response.getWriter();
+
+                PreparedStatement ps = conn.prepareStatement(
+                    "SELECT event_id, event_name, event_date, dept_id, year " +
+                    "FROM event WHERE event_name=? AND event_date=? AND dept_id=? LIMIT 1"
+                );
+                ps.setString(1, eventName);
+                ps.setDate(2, Date.valueOf(eventDate));
+                ps.setInt(3, Integer.parseInt(deptIdStr));
+
+                ResultSet rs = ps.executeQuery();
+
+                if (rs.next()) {
+                    out.print("{");
+                    out.print("\"event_id\":" + rs.getInt("event_id") + ",");
+                    out.print("\"event_name\":\"" + rs.getString("event_name") + "\",");
+                    out.print("\"event_date\":\"" + rs.getString("event_date") + "\",");
+                    out.print("\"year\":\"" + rs.getString("year") + "\",");
+
+                    out.println("<td>" + rs.getString("year") + "</td>");
+                    out.print("\"dept_id\":" + rs.getInt("dept_id"));
+                    out.print("}");
+                } else {
+                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                }
+
+                rs.close();
+                ps.close();
+                return; // ⛔ DO NOT CONTINUE TO HTML
+            }
+
+            /* ==================================================
+               NORMAL PAGE MODE → TABLE (UNCHANGED)
+               ================================================== */
+            response.setContentType("text/html;charset=UTF-8");
+            PrintWriter out = response.getWriter();
+
+            ResultSet rs = conn.createStatement()
+                .executeQuery("SELECT * FROM event ORDER BY event_id");
+
+            out.println("<table border='1'>");
+            out.println("<th>ID</th><th>Name</th><th>Date</th><th>Year</th><th>Dept</th><th>Action</th>");
+
+            int i = 1;
+            while (rs.next()) {
+                out.println("<tr>");
+                out.println("<td>" + i++ + "</td>");
+                out.println("<td>" + rs.getString("event_name") + "</td>");
+                out.println("<td>" + rs.getString("event_date") + "</td>");
+                out.println("<td>" + rs.getString("year") + "</td>");
+                out.println("<td>" + getDeptName(rs.getInt("dept_id")) + "</td>");
+                out.println("<td>");
+                
+                String eventname = rs.getString("event_name");
+                String eventdate = rs.getString("event_date");
+                int deptId = rs.getInt("dept_id");
+
+				out.println("<span class='edit-btn'>");
+				out.println(
+				    "<a href='/demo3/admin_panel/Event.html" +
+				    "?event_name=" + eventname+
+				    "&event_date=" + eventdate +
+				    "&dept_id=" + deptId + "'>"
+				);
+				out.println("<i class='fa-solid fa-pen-to-square' style='color:#00BFFF;'></i></a>");
+				out.println("</span>");
+
+                // DELETE ICON (UNCHANGED)
+				out.println(
+						  "<span class='delete-btn' " +
+						  "data-type='event' " +
+						  "data-id='" + rs.getInt("event_id") + "' " +
+						  "style='cursor:pointer;color:red;'>"
+						);
+						out.println("<i class='fa-solid fa-trash'></i>");
+						out.println("</span>");
+
+
+                out.println("</td>");
+                out.println("</tr>");
+            }
+            out.println("</table>");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.getWriter().println("ERROR");
+        }
+    }
+
+    /* ================= POST ================= */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String action = request.getParameter("action");
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASS)) {
+
+            /* ---------- DELETE (UNCHANGED) ---------- */
+            if ("delete".equals(action)) {
+                int id = Integer.parseInt(request.getParameter("event_id"));
+                PreparedStatement ps = conn.prepareStatement(
+                    "DELETE FROM event WHERE event_id=?"
+                );
+                ps.setInt(1, id);
+                ps.executeUpdate();
+                response.sendRedirect("admin_panel/home.html?menu=Event");
+                return;
+            }
+
+            /* ---------- UPDATE (LOGIC ONLY, NO ID DEPENDENCY) ---------- */
+            if ("update".equals(action)) {
+                String eventName = request.getParameter("event_name");
+                String eventDate = request.getParameter("event_date");
+                String deptId    = request.getParameter("dept_id");
+
+                PreparedStatement ps = conn.prepareStatement(
+                    "SELECT event_id FROM event WHERE event_name=? AND event_date=? AND dept_id=? LIMIT 1"
+                );
+                ps.setString(1, eventName);
+                ps.setDate(2, Date.valueOf(eventDate));
+                ps.setInt(3, Integer.parseInt(deptId));
+
+                ps.executeQuery(); // just lookup
+                response.sendRedirect("home.html?menu=Event");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+event.java
+
+   @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        request.setCharacterEncoding("UTF-8");
+
+        String eventIdStr = request.getParameter("event_id"); // ⭐ KEY
+        String eventName  = request.getParameter("event_name");
+        String eventDate  = request.getParameter("event_date");
+        String year = request.getParameter("year");
+
+        int deptId        = Integer.parseInt(request.getParameter("dept"));
+        
+        /* ================= FILE UPLOAD ================= */
+        Part filePart = request.getPart("rulebook");
+        String filePath = null;
+
+        if (filePart != null && filePart.getSize() > 0) {
+            String fileName = new File(filePart.getSubmittedFileName()).getName();
+
+            File dir = new File(UPLOAD_BASE);
+            if (!dir.exists()) dir.mkdirs();
+
+            File saved = new File(dir, fileName);
+            filePart.write(saved.getAbsolutePath());
+            filePath = saved.getAbsolutePath();
+        }
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS)) {
+
+            /* ================= UPDATE ================= */
+            if (eventIdStr != null && !eventIdStr.isBlank()) {
+
+                int eventId = Integer.parseInt(eventIdStr);
+
+                String sql =
+                	    "UPDATE event SET event_name=?, event_date=?, dept_id=?, year=?"
+                	    + (filePath != null ? ", rulebook=?" : "")
+                	    + " WHERE event_id=?";
+
+                	PreparedStatement ps = conn.prepareStatement(sql);
+
+                	ps.setString(1, eventName);
+                	ps.setString(2, eventDate);
+                	ps.setInt(3, deptId);
+                	ps.setString(4, year);
+
+                	int index = 5;
+
+                	if (filePath != null) {
+                	    ps.setString(index, filePath);
+                	    index++;
+                	}
+
+                	ps.setInt(index, eventId);
+
+                	ps.executeUpdate();
+            }
+                	/* ================= INSERT ================= */
+            else {
+                PreparedStatement ps = conn.prepareStatement(
+                    "INSERT INTO event (event_name, event_date, dept_id, year, rulebook) VALUES (?,?,?,?,?)"
+                );
+                ps.setString(1, eventName);
+                ps.setString(2, eventDate);
+                ps.setInt(3, deptId);
+                ps.setString(4, year);
+                ps.setString(5, filePath);
+                ps.executeUpdate();
+            }
+
+            response.sendRedirect("./admin_panel/home.html?menu=Event");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ServletException(e);
+        }
+    }
+}
+
