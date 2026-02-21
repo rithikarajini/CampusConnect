@@ -1,219 +1,256 @@
 version: "3.1"
 
 nlu:
+  - intent: greet
+    examples: |
+      - hi
+      - hello
+      - hey
+      - good morning
+      - good evening
+      - can u help me
 
-- intent: greet
-  examples: |
-    - hi
-    - hello
-    - hey
-    - good morning
-    - good evening
-    - can u help me
+  - intent: goodbye
+    examples: |
+      - ok
+      - bye
+      - byeee
+      - thankyou
+      - good
+      - nice
+      - okay
 
-- intent: goodbye
-  examples: |
-    - ok
-    - bye
-    - byeee
-    - thankyou
-    - good
-    - nice
-    - okay
+  - intent: affirm
+    examples: |
+      - really
+      - of course
+      - sure
 
-- intent: affirm
-  examples: |
-    - really
-    - of course
-    - sure
+  # ---------- EXAM SCHEDULE ----------
+  - intent: exam_schedule
+    examples: |
 
-# ---------- EXAM SCHEDULE ----------
-- intent: exam_schedule
-  examples: |
+      - show exam schedule
+      - show exam timetable
+      - exam schedule
+      - exam timetable
 
-    - show exam schedule
-    - show exam timetable
-    - exam schedule
-    - exam timetable
+      - when are the semester [2](semester) exams
+      - exams for semester [2](semester)
+      - exam dates for semester [4](semester)
+      - show timetable for semester [4](semester)
+      - when is semester [6](semester) exam
+      - when does semester [5](semester) exam start
+      - semester [3](semester) exam timetable
+      - semester [1](semester) exams
+      - when is [4th semester](semester) exam
+      - when does [semester 4](semester) exam start
+      - show exam timetable for [2nd semester](semester)
 
-    - when are the semester [2](semester) exams
-    - exams for semester [2](semester)
-    - exam dates for semester [4](semester)
-    - show timetable for semester [4](semester)
-    - when is semester [6](semester) exam
-    - when does semester [5](semester) exam start
-    - semester [3](semester) exam timetable
-    - semester [1](semester) exams
-    - when is [4th semester](semester) exam
-    - when does [semester 4](semester) exam start
-    - show exam timetable for [2nd semester](semester)
+      - what exam is on [2026-01-16](date) for [1st](classYear)
+      - cia exam schedule for [2nd](classYear)
+      - what exam is on [15 jan](date) for [3rd](classYear)
 
-    - what exam is on [2026-01-16](date) for [1st](classYear)
-    - cia exam schedule for [2nd](classYear)
-    - what exam is on [15 jan](date) for [3rd](classYear)
+      - when is [semester](examType) exam
+      - show [semester](examType) exam timetable
+      - [semester](examType) exam schedule
+      - java [semester](examType) exam
+      - [semester](examType) exam for bca
 
-    - when is [semester](examType) exam
-    - show [semester](examType) exam timetable
-    - [semester](examType) exam schedule
-    - java [semester](examType) exam
-    - [semester](examType) exam for bca
+      - when is [CIA-1](examType) exam
+      - when is [CIA-2](examType) exam
+      - show [cia 1](examType) exam schedule
+      - show [cia 2](examType) timetable
+      - [cia 1](examType) exam schedule
+      - [cia 2](examType) exam timetable
+      - cia exam schedule for [1st](classYear) year
+      - cia exam schedule for [2nd](classYear) year
+      - cia exam schedule for [3rd](classYear) year
+      - internal exam timetable
 
-    - when is [CIA-1](examType) exam
-    - when is [CIA-2](examType) exam
-    - show [cia 1](examType) exam schedule
-    - show [cia 2](examType) timetable
-    - [cia 1](examType) exam schedule
-    - [cia 2](examType) exam timetable
-    - cia exam schedule for [1st](classYear) year
-    - cia exam schedule for [2nd](classYear) year
-    - cia exam schedule for [3rd](classYear) year
-    - internal exam timetable
+      - when is [java](subject) exam
+      - when is [security in computing](subject) exam
+      - when is [python](subject) exam
+      - when is [accounts](subject) exam
+      - when is [database](subject) exam
+      - when is [cloud](subject) exam for semester [4](semester)
+      - [database](subject) exam for semester [3](semester)
 
-    - when is [java](subject) exam
-    - when is [security in computing](subject) exam
-    - when is [python](subject) exam
-    - when is [accounts](subject) exam
-    - when is [database](subject) exam
-    - when is [cloud](subject) exam for semester [4](semester)
-    - [database](subject) exam for semester [3](semester)
+      - show [bca](dept) exam timetable
+      - show exam schedule for [bcom](dept)
+      - show exam schedule for [Msc IT](dept)
+      - [bca](dept) semester [4](semester) exam timetable
+      - [bca](dept) exam schedule
 
-    - show [bca](dept) exam timetable
-    - show exam schedule for [bcom](dept)
-    - show exam schedule for [Msc IT](dept)
-    - [bca](dept) semester [4](semester) exam timetable
-    - [bca](dept) exam schedule
+      - what exam is on [12-01-2025](date)
+      - what exam is on [12/01/2025](date)
+      - what exam is on [12 jan](date)
+      - what exam is on [jan 12](date)
+      - what exam is on [12th jan](date)
+      - what exam is on [12th jan](date) for [bca](dept)
 
-    - what exam is on [12-01-2025](date)
-    - what exam is on [12/01/2025](date)
-    - what exam is on [12 jan](date)
-    - what exam is on [jan 12](date)
-    - what exam is on [12th jan](date)
-    - what exam is on [12th jan](date) for [bca](dept)
+      - course [code](courseCode) for [java](subject)
+      - [st](subject) course [code](courseCode)
+      - course [code](courseCode) for [python](subject)
+      - course [code](courseCode) for [android](subject)
+      - course [code](courseCode) for [security in computing](subject)
+  - synonym: semester
+    examples: |
+      - semester exam
+      - end semester
+      - end-sem
+      - sem exam
 
-    - course [code](courseCode) for [java](subject)
-    - [st](subject) course [code](courseCode)
-    - course [code](courseCode) for [python](subject)
-    - course [code](courseCode) for [android](subject)
-    - course [code](courseCode) for [security in computing](subject)
-- synonym: semester
-  examples: |
-    - semester exam
-    - end semester
-    - end-sem
-    - sem exam
+  - synonym: cia 1
+    examples: |
+      - cia1
+      - cia one
 
-- synonym: cia 1
-  examples: |
-    - cia1
-    - cia one
+  - synonym: cia 2
+    examples: |
+      - cia2
+      - cia two
 
-- synonym: cia 2
-  examples: |
-    - cia2
-    - cia two
+  - regex: classYear
+    examples: |
+      - ((1st|2nd|3rd)\s*year)
+      - (year\s*(1|2|3))
 
-- regex: classYear
-  examples: |
-    - ((1st|2nd|3rd)\s*year)
-    - (year\s*(1|2|3))
+  - regex: date
+    examples: |
+      - (\d{1,2}[-/]\d{1,2}[-/]\d{4})
+      - (jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s*\d{1,2}
 
-- regex: date
-  examples: |
-    - (\d{1,2}[-/]\d{1,2}[-/]\d{4})
-    - (jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s*\d{1,2}
+  # ---------- FEES ----------
 
-# ---------- FEES ----------
+  - intent: fees_query
+    examples: |
+      - show fees for [1](semester) semester
+      - show fees for [1st](semester) semester
+      - how much is [2](semester) semester fee
+      - how much is [2nd](semester) semester fee
+      - fee for [3](semester) semester
+      - fee for [3rd](semester) semester
+      - what is the amount for [4](semester) semester
+      - what is the amount for [4th](semester) semester
+      - tell me [5](semester) semester fees
+      - tell me [5th](semester) semester fees
+      - what is the fee for [6](semester) semester
+      - what is the fee for [6th](semester) semester
 
-- intent: fees_query
-  examples: |
-    - show fees for [1](semester) semester
-    - show fees for [1st](semester) semester
-    - how much is [2](semester) semester fee
-    - how much is [2nd](semester) semester fee
-    - fee for [3](semester) semester
-    - fee for [3rd](semester) semester
-    - what is the amount for [4](semester) semester
-    - what is the amount for [4th](semester) semester
-    - tell me [5](semester) semester fees
-    - tell me [5th](semester) semester fees
-    - what is the fee for [6](semester) semester
-    - what is the fee for [6th](semester) semester
+      - how much should I pay for [1](semester) semester
+      - how much should I pay for [1st](semester) semester
+      - how much should I pay for [2](semester) semester
+      - how much should I pay for [2nd](semester) semester
+      - how much should I pay for [3](semester) semester
+      - how much should I pay for [3rd](semester) semester
+      - how much should I pay for [4](semester) semester
+      - how much should I pay for [4th](semester) semester
+      - how much should I pay for [5](semester) semester
+      - how much should I pay for [5th](semester) semester
+      - how much should I pay for [6](semester) semester
+      - how much should I pay for [6th](semester) semester
 
-    - how much should I pay for [1](semester) semester
-    - how much should I pay for [1st](semester) semester
-    - how much should I pay for [2](semester) semester
-    - how much should I pay for [2nd](semester) semester
-    - how much should I pay for [3](semester) semester
-    - how much should I pay for [3rd](semester) semester
-    - how much should I pay for [4](semester) semester
-    - how much should I pay for [4th](semester) semester
-    - how much should I pay for [5](semester) semester
-    - how much should I pay for [5th](semester) semester
-    - how much should I pay for [6](semester) semester
-    - how much should I pay for [6th](semester) semester
+      - how much did I pay in [2024](year)
+      - show fees for year [2025](year)
+      - what is my fees in [2023](year)
 
-    - how much did I pay in [2024](year)
-    - show fees for year [2025](year)
-    - what is my fees in [2023](year)
+      - how much did I pay for [6](semester) semester in [2024](year)
+      - how much did I pay for [6th](semester) semester in [2024](year)
+      - fee for [3](semester) semester in [2025](year)
+      - fee for [3rd](semester) semester in [2025](year)
+      - show [2](semester) semester fees for [2023](year)
+      - show [2nd](semester) semester fees for [2023](year)
 
-    - how much did I pay for [6](semester) semester in [2024](year)
-    - how much did I pay for [6th](semester) semester in [2024](year)
-    - fee for [3](semester) semester in [2025](year)
-    - fee for [3rd](semester) semester in [2025](year)
-    - show [2](semester) semester fees for [2023](year)
-    - show [2nd](semester) semester fees for [2023](year)
+      - when is the last date to pay [1](semester) semester fees
+      - when is the last date to pay [1st](semester) semester fees
+      - last date for [3](semester) semester fee
+      - last date for [3rd](semester) semester fee
+      - what is the due date for [5](semester) semester
+      - what is the due date for [5th](semester) semester
 
-    - when is the last date to pay [1](semester) semester fees
-    - when is the last date to pay [1st](semester) semester fees
-    - last date for [3](semester) semester fee
-    - last date for [3rd](semester) semester fee
-    - what is the due date for [5](semester) semester
-    - what is the due date for [5th](semester) semester
+      - when is the last date to pay [2](semester) semester fees in [2024](year)
+      - when is the last date to pay [2nd](semester) semester fees in [2024](year)
+      - last date for [6](semester) semester in [2025](year)
+      - last date for [6th](semester) semester in [2025](year)
 
-    - when is the last date to pay [2](semester) semester fees in [2024](year)
-    - when is the last date to pay [2nd](semester) semester fees in [2024](year)
-    - last date for [6](semester) semester in [2025](year)
-    - last date for [6th](semester) semester in [2025](year)
+  - regex: year
+    examples: |
+      - (20[0-9]{2})
 
-- regex: year
-  examples: |
-    - (20[0-9]{2})
+  - regex: semester
+    examples: |
+      - (semester\s*(1|2|3|4|5|6))
+      - ((1st|2nd|3rd|4th|5th|6th)\s*semester)
+      - (sem\s*(1|2|3|4|5|6))
 
-- regex: semester
-  examples: |
-    - (semester\s*(1|2|3|4|5|6))
-    - ((1st|2nd|3rd|4th|5th|6th)\s*semester)
-    - (sem\s*(1|2|3|4|5|6))
+  # ---------- FACULTY ----------
+  - intent: faculty_query
+    examples: |
+      - who is the hod of [bca](dept) department
+      - hod of [bca](dept) department
+      - List all the [Heads of Departments](hod) of all departments
+      - hod name of [bsc IT](dept)
+      - list all the associate professor of [bca](dept) department
+      - who is the [hod](designation) of bca.
+      - list the [assistant professor](designation) of bca.
+      - list the [associate professor](designation) of bca.
+      - list all the assistant professors of [datascience](dept) department
+      - to which dept does [lakshmi](firstname) [devi](lastname) mam belongs to
+      - lakshmi(firstname) mam is from which department
+      - devi(lastname) mam is from which department
+      - faculty of [bca](dept) department
+      - to which designation does [lakshmi](firstname) [devi](lastname) mam belongs to
+      - who is the [hod](designation) of all department
+      - list all the [hod](designation) of all department
 
-# ---------- FACULTY ----------
-- intent: faculty_query
-  examples: |
-    - who is the hod of [bca](dept) department
-    - hod name of [bsc IT](dept)
-    - list all the associate professors of [bca](dept) department
-    - list all the assistant professors of [datascience](dept) department
-    - to which dept does [lakshmi](firstname) [devi](lastname) mam belongs to
-    - lakshmi(firstname) mam is from which department
-    - devi(lastname) mam is from which department
-    - faculty of [bca](dept) department
+  # ---------- EVENTS ----------
+  - intent: event_query
+    examples: |
+      - upcoming events
+      - details of the [festive](eventname) [2025](year)
+      - tell me about the [innotech](eventname) [2025](year) event
+      - any event on 5th december
+      - when is [food fest](eventname) [2025](year)
+      - when is [festive](eventname) [2026](year)
+      - when is [bca](dept) department's culturals
+      - list all the events in [innotech](eventname) [25](year)
+      - share me the rulebook of [festive](eventname) [25](year)
+      - send me rulebook of [festive](eventname) [25](year)
+      - rules for events in [festive](eventname) [25](year)
+      - When is [innotech](eventname)
+      - when is [innotech](eventname) of [bca](dept) is happening
+      - give rule for [factopia](rulecategory) from [innotech](eventname)
+      - [innotech](eventname) [factopia](rulecategory) rule
+      - give rule for [factopia](rulecategory) from [innotech](eventname)
+      - show [ideathon](rulecategory) rule of [innotech](eventname)
+      - what are [factopia](rulecategory) rule for [innotech](eventname)
+      - tell me [factopia](rulecategory) rule
+      - [factopia](rulecategory) rule of [festive](eventname)
+      - give me [webify](rulecategory) guidelines
+      - [factopia](rulecategory) rule book
+      - rule of [factopia](rulecategory) in [innotech](eventname)
+      - show [general](rulecategory) rule of [innotech](eventname)
+      - what are [general](rulecategory) rule for [innotech](eventname)
+      - [general](rulecategory) rule of [festive](eventname)
+      -
 
-# ---------- EVENTS ----------
-- intent: event_query
-  examples: |
-    - upcoming events
-    - details of the festive [2025](year)
-    - tell me about the technova [2025](year) event
-    - any event on 5th december
-    - when is food fest [2025](year)
-    - when is festive [2026](year)
-    - when is bca department's culturals
-    - list all the events in technova [25](year)
-    - share me the rulebook of festive [25](year)
-    - send me rulebook of festive [25](year)
-    - rules for events in festive [25](year)
 
-# ---------- REGEX PATTERNS ----------
+    # ---------- RULES ----------
+  - intent: rules_query
+    examples: |
+      - give the [guidelines](rules) of wcc
+      - what are the [rules](rules) of wcc
+      - tell me the [college rules](rules)
+      - explain the [guidelines](rules)
+      - wcc [rules](rules)
+      - campus [rules](rules)
 
-- regex: year
-  examples: |
-    - 20\d\d
+  # ---------- REGEX PATTERNS ----------
+
+  - regex: year
+    examples: |
+      - 20\d\d
+
+  
+
