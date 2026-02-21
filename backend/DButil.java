@@ -1,15 +1,36 @@
+import jakarta.servlet.ServletContext;
+
 import jakarta.servlet.annotation.WebServlet;
+
+
 import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+
+import java.io.File;
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.List;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
+
+import java.util.ArrayList;
+
 
 @WebServlet("/DButil")
 public class DButil extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private static final String URL = "jdbc:mysql://localhost:3306/campusconnect?useSSL=false";
+    private static final String URL = "jdbc:mysql://localhost:3306/demo2?useSSL=false";
     private static final String USER = "root";
-    private static final String PASS = "Rithika@14";
+    private static final String PASS = "25swathi14";
 
     static {
         try {
@@ -23,40 +44,7 @@ public class DButil extends HttpServlet {
         return DriverManager.getConnection(URL, USER, PASS);
     }
 
-    /* ===========================================================
-                        EVENTS
-       =========================================================== */
-    public static EventMeta findEvent(String name) {
-        String sql =
-            "SELECT  e.event_name, e.event_date, d.dept_name, e.rulebook "
-          + "FROM event e "
-          + "JOIN dept d ON e.dept_id = d.dept_id "
-          + "WHERE e.event_name LIKE ? LIMIT 1";
-        try (Connection c = getConn(); PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1, "%" + name + "%");
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                EventMeta e = new EventMeta();
-                e.eventName = rs.getString("event_name");
-                e.eventDate = rs.getDate("event_date");
-                e.deptName = rs.getString("dept_name");
-                e.rulebook = rs.getString("rulebook");
-                return e;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public static class EventMeta {
-        public int id;
-        public String eventName;
-        public Date eventDate;
-        public String deptName;
-        public String rulebook;
-    }
-
+    
 
     /* ===========================================================
                         EXAMS
@@ -231,21 +219,12 @@ public class DButil extends HttpServlet {
     }
 
     /* ===================== DEPARTMENT LOOKUP ===================== */
-    public static Integer getDeptIdByName(String deptFromRasa) {
-
-        if (deptFromRasa == null) return null;
-
-        String norm = deptFromRasa.toLowerCase().replaceAll("[^a-z]", "");
-
-        String sql =
-            "SELECT dept_id FROM dept " +
-            "WHERE LOWER(REPLACE(REPLACE(REPLACE(dept_name,'.',''),' ',''),'-','')) LIKE ?";
-
+    public static Integer getDeptIdByName(String dept) {
+        String sql = "SELECT dept_id FROM dept WHERE LOWER(dept_name) = ?";
         try (Connection c = getConn();
              PreparedStatement ps = c.prepareStatement(sql)) {
 
-            ps.setString(1, "%" + norm + "%");
-
+            ps.setString(1, dept.toLowerCase());
             ResultSet rs = ps.executeQuery();
             if (rs.next())
                 return rs.getInt("dept_id");
@@ -253,10 +232,8 @@ public class DButil extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return null;
     }
-
     /* ===================== NORMALIZER ===================== */
     private static String normalizeExamType(String raw) {
 
@@ -356,54 +333,62 @@ public class DButil extends HttpServlet {
     /* ===========================================================
                         FACULTY
        =========================================================== */
-    public static List<Faculty> getFaculty(String keyword) {
+    public static List<Faculty> getFaculty(
+            String firstname,
+            String lastname,
+            String designation,
+            Integer deptId
+    ) {
 
         List<Faculty> list = new ArrayList<>();
 
-        // Split keyword by space to check for full name
-        String firstNameKeyword = keyword;
-        String lastNameKeyword = keyword;
+        StringBuilder sql = new StringBuilder(
+            "SELECT f.Firstname, f.lastname, f.designation, d.dept_name " +
+            "FROM faculty f " +
+            "JOIN dept d ON f.dept_id = d.dept_id " +
+            "WHERE 1=1 "
+        );
 
-        String[] parts = keyword.trim().split("\\s+");
-        if (parts.length >= 2) {
-            firstNameKeyword = parts[0];
-            lastNameKeyword = parts[1];
+        List<Object> params = new ArrayList<>();
+
+        // Match by first name
+        if (firstname != null) {
+            sql.append(" AND f.Firstname LIKE ? ");
+            params.add(firstname + "%");
         }
 
-        String sql =
-            "SELECT f.firstname, f.lastname, f.designation, d.dept_name "
-          + "FROM faculty f "
-          + "JOIN dept d ON f.dept_id = d.dept_id "
-          + "WHERE "
-          + "(f.firstname LIKE ? AND f.lastname LIKE ?) "   
-          + "OR f.firstname LIKE ? "                      
-          + "OR f.lastname LIKE ? "                       
-          + "OR f.designation LIKE ? "                     
-          + "OR d.dept_name LIKE ?";                      
+        // Match by last name
+        if (lastname != null) {
+            sql.append(" AND f.lastname LIKE ? ");
+            params.add(lastname + "%");
+        }
 
-        try (Connection c = getConn(); PreparedStatement ps = c.prepareStatement(sql)) {
+        // Match by designation
+        if (designation != null) {
+            sql.append(" AND f.designation = ? ");
+            params.add(designation);
+        }
 
-            // Full name match
-            ps.setString(1, "%" + firstNameKeyword + "%");
-            ps.setString(2, "%" + lastNameKeyword + "%");
+        // Match by department
+        if (deptId != null) {
+            sql.append(" AND f.dept_id = ? ");
+            params.add(deptId);
+        }
+        
 
-            // First name only
-            ps.setString(3, "%" + firstNameKeyword + "%");
+        try (Connection c = getConn();
+             PreparedStatement ps = c.prepareStatement(sql.toString())) {
 
-            // Last name only
-            ps.setString(4, "%" + lastNameKeyword + "%");
-
-            // Designation
-            ps.setString(5, "%" + keyword + "%");
-
-            // Department
-            ps.setString(6, "%" + keyword + "%");
+            // Set parameters dynamically
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
 
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
                 Faculty f = new Faculty();
-                f.firstname = rs.getString("firstname");
+                f.Firstname = rs.getString("Firstname"); // capital F as in DB
                 f.lastname = rs.getString("lastname");
                 f.designation = rs.getString("designation");
                 f.department = rs.getString("dept_name");
@@ -419,11 +404,206 @@ public class DButil extends HttpServlet {
 
 
     public static class Faculty {
-        public String firstname;
+        public String Firstname;   // capital F to match DB
         public String lastname;
         public String designation;
         public String department;
     }
+
+
+     /* ===========================================================
+                             EVENT
+        =========================================================== */
+    public static List<Event> getEvent(String eventName, Integer deptId) {
+
+        List<Event> list = new ArrayList<>();
+
+        String sql =
+            "SELECT e.event_name, e.event_date, e.year, d.dept_name, e.rulebook " +
+            "FROM event e " +
+            "JOIN dept d ON e.dept_id = d.dept_id " +
+            "WHERE LOWER(e.event_name) LIKE ?";
+
+        if (deptId != null) {
+            sql += " AND e.dept_id = ?";
+        }
+
+        try (Connection con = getConn();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            int i = 1;
+            ps.setString(i++, "%" + eventName.toLowerCase() + "%");
+
+            if (deptId != null) {
+                ps.setInt(i++, deptId);
+            }
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Event e = new Event();
+                e.eventName = rs.getString("event_name");
+                e.eventDate = rs.getString("event_date") != null
+                                ? rs.getDate("event_date").toString()
+                                : "";
+                e.year = rs.getInt("year");
+                e.department = rs.getString("dept_name");
+                e.rulebook = rs.getString("rulebook");
+                list.add(e);
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return list;
+    }
+    public static class Event {
+        public String eventName;
+        public String eventDate;
+        public int year;
+        public String department;
+        public String rulebook;
+    }
+    
+    public static Integer getEventId(String eventName, Integer deptId) {
+
+        Integer eventId = null;
+
+        try (Connection con = getConn();
+             PreparedStatement ps = con.prepareStatement(
+            		 "SELECT event_id FROM event WHERE LOWER(event_name) LIKE ? AND dept_id=?"
+)) {
+
+        	ps.setString(1, "%" + eventName.toLowerCase() + "%");
+            ps.setInt(2, deptId);
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                eventId = rs.getInt("event_id");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return eventId;
+    }
+    
+    public static String extractCategoryFromMessage(Integer eventId, String message) {
+
+        String categoryName = null;
+
+        String sql = "SELECT category_name FROM event_rule_category WHERE event_id = ?";
+
+        try (Connection con = getConn();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, eventId);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+
+                String category = rs.getString("category_name");
+
+                if (message.contains(category.toLowerCase())) {
+                    categoryName = category;
+                    break;
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return categoryName;
+    }
+    
+    public static List<Rule> getAllRules(Integer eventId) {
+
+        List<Rule> list = new ArrayList<>();
+
+        String sql =
+            "SELECT r.rule_no, r.rule_text " +
+            "FROM event_rules r " +
+            "JOIN event_rule_category c ON r.category_id = c.category_id " +
+            "WHERE c.event_id = ? " +
+            "ORDER BY c.category_id, r.rule_no";
+
+        try (Connection con = getConn();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, eventId);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+
+                Rule r = new Rule(
+                        rs.getInt("rule_no"),
+                        rs.getString("rule_text")
+                );
+
+                list.add(r);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    
+    public static List<Rule> getRules(Integer eventId, String categoryName) {
+
+        List<Rule> list = new ArrayList<>();
+
+        String sql =
+            "SELECT r.rule_no, r.rule_text " +
+            "FROM event_rules r " +
+            "JOIN event_rule_category c ON r.category_id = c.category_id " +
+            "WHERE c.event_id = ? AND LOWER(c.category_name) = ? " +
+            "ORDER BY r.rule_no";
+
+        try (Connection con = getConn();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, eventId);
+            ps.setString(2, categoryName.toLowerCase());
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+
+                Rule r = new Rule(
+                        rs.getInt("rule_no"),
+                        rs.getString("rule_text")
+                );
+
+                list.add(r);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+    public static class Rule {
+        public int ruleNo;
+        public String ruleText;
+
+        public Rule(int ruleNo, String ruleText) {
+            this.ruleNo = ruleNo;
+            this.ruleText = ruleText;
+        }
+    }
+
+
+
+
 }
 
    
