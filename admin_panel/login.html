@@ -1,178 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Admin Login - CampusConnect</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login - CampusConnect</title>
 <style>
   html, body {
-    height: 100%;
-    margin: 0; padding: 0;
+    height: 100%; margin: 0; padding: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-color:  #ccd6b4; /* matches logo background */
-    min-height: 100vh;
-    position: relative;
+    background-image: url('WhatsApp-Image-2025-11-16-at-18.36.25_8c651a7b.jpg');
+    background-size: cover; background-position: center;
+    background-repeat: no-repeat; background-attachment: fixed;
+    background-color: #cad3b3; min-height: 100vh;
   }
 
-  /* Big logo fixed top left */
   #logo-campus {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    height: 100px;
-    width: auto;
-    object-fit: contain;
-    z-index: 1000;
-  }
+    position: fixed; top: 20px; left: 20px;
+    height: 100px; width: auto; object-fit: contain;
+    z-index: 1000;   }
 
-  /* Brand text fixed and horizontally centered */
   #brand-text {
-    position: fixed;
-    top: 45px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 3rem;
-    font-weight: 900;
-    color: #205B6F;
+    position: fixed; top: 45px; left: 50%;
+    transform: translateX(-50%); font-size: 3rem;
+    font-weight: 900; color: #205B6F;
     font-family: 'Segoe UI', Verdana, sans-serif;
-    user-select: none;
-    z-index: 1000;
-    white-space: nowrap;
+    user-select: none; z-index: 1000; white-space: nowrap;
   }
-  #brand-text .campus {
-    color: #205B6F;
-    margin-right: 6px;
-  }
-  #brand-text .connect {
-    color: #8cc63f;
-  }
+  #brand-text .campus { color: #205B6F; margin-right: 6px; }
+  #brand-text .connect { color: #8cc63f; }
 
-  /* Center login form below header */
   #main-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100vw;
-    min-height: 100vh;
-    justify-content: center;
-    padding-top: 140px; /* space for logo + brand */
-    box-sizing: border-box;
+    display: flex; flex-direction: column;
+    align-items: center; width: 100vw;
+    min-height: 100vh; justify-content: center;
+    padding-top: 140px; box-sizing: border-box;
   }
 
   #login-container {
-    background: #fff;
-    padding: 32px 40px 24px 40px;
-    border-radius: 12px;
-    box-shadow: 0 6px 24px rgba(32,91,111,0.10);
-    width: 330px;
-    z-index: 2;
+    background: #fff; padding: 32px 40px 24px 40px;
+    border-radius: 12px; box-shadow: 0 6px 24px rgba(32,91,111,0.10);
+    width: 330px; z-index: 2;
   }
+
   #login-container h2 {
-    margin-bottom: 22px;
-    color: #205B6F;
-    text-align: center;
-    font-size: 1.42rem;
-    font-weight: 700;
+    margin-bottom: 22px; color: #205B6F;
+    text-align: center; font-size: 1.42rem; font-weight: 700;
   }
+
   label {
-    display: block;
-    margin-bottom: 7px;
-    color: #205B6F;
-    font-weight: 600;
-    letter-spacing: 0.2px;
+    display: block; margin-bottom: 7px;
+    color: #205B6F; font-weight: 600; letter-spacing: 0.2px;
   }
+
   input[type="text"], input[type="password"] {
-    width: 100%;
-    padding: 10px 14px;
-    margin-bottom: 17px;
-    border: 1.5px solid #8cc63f;
-    border-radius: 6px;
-    font-size: 16px;
-    box-sizing: border-box;
+    width: 100%; padding: 10px 14px; margin-bottom: 17px;
+    border: 1.5px solid #8cc63f; border-radius: 6px;
+    font-size: 16px; box-sizing: border-box;
     transition: border-color 0.2s;
   }
-  input[type="text"]:focus, input[type="password"]:focus {
-    border-color: #205B6F;
-    outline: none;
+
+  input:focus {
+    border-color: #205B6F; outline: none;
   }
+
   button {
-    width: 100%;
-    padding: 12px 0;
-    background: #205B6F;
-    color: #fff;
-    font-size: 18px;
-    font-weight: 700;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.2s;
-    margin-top: 8px;
+    width: 100%; padding: 12px 0; background: #205B6F;
+    color: #fff; font-size: 18px; font-weight: 700;
+    border: none; border-radius: 8px; cursor: pointer;
+    transition: background 0.2s; margin-top: 8px;
   }
-  button:hover {
-    background: #143a50;
+
+  button:hover { background: #143a50; }
+
+  .link {
+    text-align: center; margin-top: 15px; font-size: 15px;
   }
-  .error-message {
-    color: #b33;
-    font-size: 14px;
-    margin-bottom: 12px;
-    display: none;
-    text-align: center;
+  .link a {
+    color: #205B6F; text-decoration: none; font-weight: 600;
   }
+  .link a:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
+<img id="logo-campus" src="logo.png" alt="CampusConnect Logo" />
 
-<!-- Big logo fixed in top-left corner -->
-<img id="logo-campus" src="clogo.png" alt="CampusConnect Logo" />
-
-<!-- Brand text horizontally centered -->
-<div id="brand-text" aria-label="CampusConnect Brand">
+<div id="brand-text">
   <span class="campus">Campus</span><span class="connect">Connect</span>
 </div>
 
 <div id="main-content">
-  <div id="login-container" role="main" aria-label="Admin Login Form">
-    <h2>Admin Login</h2>
-    <form id="login-form" aria-describedby="login-error" novalidate action="Loginservlet" method="post">
-      <label for="username">Username</label>
-      <input type="text" id="username" name="username" aria-required="true" autocomplete="username" placeholder="Enter username" />
+  <div id="login-container">
+    <h2>Login</h2>
+    
+    <!-- ✅ GET method to match your doGet() -->
+    <form method="POST" action="/demo3/Loginservlet">
 
-      <label for="password">Password</label>
-      <input type="password" id="password" name="password" aria-required="true" autocomplete="current-password" placeholder="Enter password" />
+  <label for="username">Username</label>
+  <input type="text" id="username" name="username"
+         placeholder="Enter username" required />
 
-      <div id="login-error" class="error-message" role="alert">Please enter username and password</div>
+  <label for="password">Password</label>
+  <input type="password" id="password" name="password"
+         placeholder="Enter password" required />
 
-      <button type="submit">Login</button>
-    </form>
+  <button type="submit">Login</button>
+</form>
+
+
+      
+    <div class="link">
+      Don't have an account? <a href="regich.html">Register here</a>
+    </div>
   </div>
 </div>
-
-<script>
-  const loginForm = document.getElementById('login-form');
-  const errorMessage = document.getElementById('login-error');
-
-  loginForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const username = loginForm.username.value.trim();
-    const password = loginForm.password.value.trim();
-
-    if (!username || !password) {
-      errorMessage.style.display = 'block';
-      return;
-    }
-
-    errorMessage.style.display = 'none';
-
-    // TODO: Add actual authentication logic here
-    alert(`Login submitted.\nUsername: ${username}`);
-
-    loginForm.reset();
-  });
-</script>
-
 </body>
 </html>
