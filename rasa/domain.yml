@@ -8,7 +8,7 @@ intents:
   - event_query
   - goodbye
   - affirm
-
+  - rules_query
 
 entities:
   - semester
@@ -17,10 +17,15 @@ entities:
   - date
   - courseCode
   - examType
+  - hod
+  - designation
   - subject
   - firstname
   - lastname
   - classYear
+  - rules
+  - eventname
+  - rulecategory
 
 slots:
   semester:
