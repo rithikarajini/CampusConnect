@@ -520,41 +520,6 @@ public class DButil extends HttpServlet {
         return categoryName;
     }
     
-    public static List<Rule> getAllRules(Integer eventId) {
-
-        List<Rule> list = new ArrayList<>();
-
-        String sql =
-            "SELECT r.rule_no, r.rule_text " +
-            "FROM event_rules r " +
-            "JOIN event_rule_category c ON r.category_id = c.category_id " +
-            "WHERE c.event_id = ? " +
-            "ORDER BY c.category_id, r.rule_no";
-
-        try (Connection con = getConn();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setInt(1, eventId);
-
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-
-                Rule r = new Rule(
-                        rs.getInt("rule_no"),
-                        rs.getString("rule_text")
-                );
-
-                list.add(r);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return list;
-    }
-
     
     public static List<Rule> getRules(Integer eventId, String categoryName) {
 
